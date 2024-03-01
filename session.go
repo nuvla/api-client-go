@@ -1,7 +1,6 @@
-package client
+package api_client_go
 
 import (
-	"api-client-go/client/types"
 	"bytes"
 	"crypto/tls"
 	"encoding/json"
@@ -26,7 +25,7 @@ type NuvlaSession struct {
 	cookies *NuvlaCookies
 }
 
-func NewNuvlaSession(sessionAttrs *types.SessionAttributes) *NuvlaSession {
+func NewNuvlaSession(sessionAttrs *SessionOptions) *NuvlaSession {
 
 	log.Infof("Creating new Nuvla session for endpoint %s", sessionAttrs.Endpoint)
 	s := &NuvlaSession{
@@ -65,7 +64,7 @@ func (s *NuvlaSession) NeedToLogin() bool {
 	return false
 }
 
-func (s *NuvlaSession) login(loginParams types.LogInParams) error {
+func (s *NuvlaSession) login(loginParams LogInParams) error {
 	// Build headers for login
 	h := make(map[string]string)
 	h["Content-Type"] = "application/json"
@@ -76,7 +75,7 @@ func (s *NuvlaSession) login(loginParams types.LogInParams) error {
 	p["template"] = loginParams.GetParams()
 
 	// Send request
-	resp, err := s.Request(&types.RequestInput{
+	resp, err := s.Request(&RequestOpts{
 		Method:   "POST",
 		Endpoint: s.endpoint + SessionEndpoint,
 		JsonData: p,
@@ -105,7 +104,7 @@ func (s *NuvlaSession) request(req *http.Request) (*http.Response, error) {
 	return resp, nil
 }
 
-func addParamsToQuery(req *http.Request, input *types.RequestParams) {
+func addParamsToQuery(req *http.Request, input *RequestParams) {
 	if input.Select != nil {
 		q := req.URL.Query()
 		for _, f := range input.Select {
@@ -116,7 +115,7 @@ func addParamsToQuery(req *http.Request, input *types.RequestParams) {
 
 }
 
-func (s *NuvlaSession) Request(reqInput *types.RequestInput) (*http.Response, error) {
+func (s *NuvlaSession) Request(reqInput *RequestOpts) (*http.Response, error) {
 	// Build endpoint
 	log.Infof("Requesting %s", reqInput.Endpoint)
 

@@ -1,4 +1,4 @@
-package client
+package api_client_go
 
 import (
 	log "github.com/sirupsen/logrus"

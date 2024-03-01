@@ -1,4 +1,4 @@
-package types
+package api_client_go
 
 import "encoding/json"
 
