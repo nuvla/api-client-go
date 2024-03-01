@@ -1,0 +1,11 @@
+{
+  "release-type": "go",
+  "include-v-in-tag": false,
+
+  "packages": {
+    ".": {
+      "release-type": "go",
+      "include-v-in-tag": false
+    }
+  }
+}
