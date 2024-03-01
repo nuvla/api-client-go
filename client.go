@@ -6,31 +6,6 @@ import (
 	"net/http"
 )
 
-type Client interface {
-	// LoginApiKeys Credentials management
-	LoginApiKeys(key string, secret string) error
-	LoginUser(username string, password string) error
-	Logout() error
-	IsAuthenticated() bool
-
-	cimiRequest(method string, endpointPath string, data interface{}) (interface{}, error)
-
-	// Nuvla API base methods
-	Get(endpointPath string) (interface{}, error)
-	Post(data interface{}, endpointPath string) (interface{}, error)
-	Put(data interface{}, endPointPath string, toDelete []string) (interface{}, error)
-
-	// Resource management methods
-	// Add, Edit, Delete, DeleteBulk, OperationBulk.
-	Add(endpointPath string, data interface{}) (interface{}, error)
-	Edit(endpointPath string, data interface{}) (interface{}, error)
-	Delete(endpointPath string) (interface{}, error)
-	DeleteBulk(endpointPath string, data interface{}) (interface{}, error)
-	OperationBulk(endpointPath string, data interface{}) (interface{}, error)
-	Search(endpointPath string, data interface{}) (interface{}, error)
-	Operation(endpointPath string, data interface{}) (interface{}, error)
-}
-
 type NuvlaClient struct {
 	nuvlaEndpoint string
 	debug         bool
