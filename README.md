@@ -1,5 +1,7 @@
 # Api Client Library
 
+Repository in development process, do not use in production environments.
+
 This repository contains the library to communicate with Nuvla API Server.
 
 The module provides multiple clients depending on the type of operations you want to perform. 
