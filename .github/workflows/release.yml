@@ -12,8 +12,6 @@ on:
   push:
     branches: [ "main" ]
 
-  workflow_dispatch:
-
 jobs:
   trigger-release:
     runs-on: ubuntu-latest
