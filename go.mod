@@ -1,4 +1,4 @@
-module api-client-go
+module github.com/nuvla/api-client-go
 
 go 1.22.0
 
