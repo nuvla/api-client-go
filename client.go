@@ -74,7 +74,9 @@ func (nc *NuvlaClient) cimiRequest(reqInput *RequestOpts) (*http.Response, error
 		reqInput.Headers = make(map[string]string)
 	}
 	reqInput.Headers["Accept"] = "application/json"
-	reqInput.Headers["Accept-Encoding"] = "gzip"
+	if nc.session.compress {
+		reqInput.Headers["Accept-Encoding"] = "gzip"
+	}
 
 	if reqInput.JsonData != nil {
 		reqInput.Headers["Content-Type"] = "application/json"

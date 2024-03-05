@@ -2,6 +2,7 @@ package api_client_go
 
 import (
 	"bytes"
+	"compress/gzip"
 	"crypto/tls"
 	"encoding/json"
 	log "github.com/sirupsen/logrus"
@@ -16,8 +17,8 @@ type NuvlaSession struct {
 	persistCookie  bool
 	loginParams    map[string]string
 	authnHeader    string
-
-	debug bool
+	compress       bool
+	debug          bool
 
 	session *http.Client
 
@@ -115,6 +116,19 @@ func addParamsToQuery(req *http.Request, input *RequestParams) {
 
 }
 
+func compressPayload(payload []byte) *bytes.Buffer {
+	var buf bytes.Buffer
+	gz := gzip.NewWriter(&buf)
+	if _, err := gz.Write(payload); err != nil {
+		log.Warn("Error compressing payload, returning uncompressed payload")
+		return bytes.NewBuffer(payload)
+	}
+	if err := gz.Close(); err != nil {
+		log.Errorf("Error closing gzip writer: %s", err)
+	}
+	return &buf
+}
+
 func (s *NuvlaSession) Request(reqInput *RequestOpts) (*http.Response, error) {
 	// Build endpoint
 	log.Infof("Requesting %s", reqInput.Endpoint)
@@ -129,9 +143,16 @@ func (s *NuvlaSession) Request(reqInput *RequestOpts) (*http.Response, error) {
 		jsonPayload, err := json.Marshal(reqInput.JsonData)
 		if err != nil {
 			log.Errorf("Error marshalling payload: %s", err)
-		} else {
-			r.Body = io.NopCloser(bytes.NewBuffer(jsonPayload))
+			return nil, err
 		}
+		var buffer *bytes.Buffer
+		if s.compress {
+			buffer = compressPayload(jsonPayload)
+		} else {
+			buffer = bytes.NewBuffer(jsonPayload)
+		}
+
+		r.Body = io.NopCloser(buffer)
 	}
 
 	for k, v := range reqInput.Headers {

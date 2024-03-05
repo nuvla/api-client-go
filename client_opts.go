@@ -7,6 +7,7 @@ type SessionOptions struct {
 	PersistCookie  bool   `json:"persist-cookie"`
 	CookieFile     string `json:"cookie-file"`
 	AuthHeader     string `json:"auth-header"`
+	Compress       bool   `json:"compress"`
 	Debug          bool   `json:"debug"`
 }
 
