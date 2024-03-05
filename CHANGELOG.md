@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.0](https://github.com/nuvla/api-client-go/compare/1.0.0...1.1.0) (2024-03-05)
+
+
+### Features
+
+* add compress option for requests ([386c5c6](https://github.com/nuvla/api-client-go/commit/386c5c629c2877a465fee4ccd17ebde89882fee4))
+
+
+### Bug Fixes
+
+* fix module location in go.mod to point to GH repo ([3521a23](https://github.com/nuvla/api-client-go/commit/3521a2366f7335b9f722b815572f6c3649e93f2b))
+
 ## 1.0.0 (2024-03-04)
 
 
