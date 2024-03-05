@@ -1,10 +1,12 @@
 {
   "release-type": "go",
   "include-v-in-tag": false,
+  "release-as": "v0.1.0",
   "bootstrap-sha": "4eebe9002128d79276591347836607c08e47a77d",
   "packages": {
     ".": {
       "release-type": "go",
+      "release-as": "v0.1.0",
       "include-v-in-tag": false
     }
   }
