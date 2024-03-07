@@ -8,6 +8,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"io"
 	"net/http"
+	"net/http/cookiejar"
 	"time"
 )
 
@@ -51,6 +52,9 @@ func NewNuvlaSession(sessionAttrs *SessionOptions) *NuvlaSession {
 	if sessionAttrs.PersistCookie {
 		s.cookies = NewNuvlaCookies(sessionAttrs.CookieFile, sessionAttrs.Endpoint)
 		s.session.Jar = s.cookies.jar
+	} else {
+		j, _ := cookiejar.New(nil)
+		s.session.Jar = j
 	}
 	// Probably, check here if jar are GOOD
 
@@ -82,7 +86,7 @@ func (s *NuvlaSession) login(loginParams LogInParams) error {
 		JsonData: p,
 		Headers:  h,
 	})
-	log.Infof("Login response: %s", resp)
+	log.Infof("Login response: %v", resp)
 
 	return err
 }
@@ -140,6 +144,7 @@ func (s *NuvlaSession) Request(reqInput *RequestOpts) (*http.Response, error) {
 	}
 	// Add payload if needed
 	if reqInput.JsonData != nil {
+		log.Debug("Parsing payload data")
 		jsonPayload, err := json.Marshal(reqInput.JsonData)
 		if err != nil {
 			log.Errorf("Error marshalling payload: %s", err)
