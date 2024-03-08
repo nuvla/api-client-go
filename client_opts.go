@@ -21,7 +21,6 @@ func NewSessionOpts(opts *SessionOptions) *SessionOptions {
 	}
 	// Insecure is already false as default since declared boolean variables are initialised to 0
 	// The same applies to ReAuthenticate, persist Cookie and Debug.
-
 	if opts.PersistCookie && opts.CookieFile == "" {
 		opts.CookieFile = DefaultCookieFile
 	}

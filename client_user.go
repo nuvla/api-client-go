@@ -37,13 +37,26 @@ func (c *UserClient) Add(resourceType string, data map[string]interface{}) (*Nuv
 		log.Errorf("Error unmarshaling response body, cannot extract ID: %s", err)
 		return nil, err
 	}
-	log.Infof("ID of new %s: %s", resourceType, resData["id"])
+	log.Infof("ID of new %s: %s", resourceType, resData)
 
-	return NewNuvlaIDFromId(resData["id"].(string)), nil
+	return NewNuvlaIDFromId(resData["resource-id"].(string)), nil
+}
+
+type SearchOptions struct {
+	First       int      `json:"first"`
+	Filter      string   `json:"filter"`
+	Fields      string   `json:"fields"`
+	Select      []string `json:"select"`
+	OrderBy     string   `json:"orderby"`
+	Aggregation string   `json:"aggregation"`
 }
 
 func (c *UserClient) AddNuvlaEdge(data map[string]interface{}) (*NuvlaID, error) {
-	return c.Add("nuvlaedge", data)
+	return c.Add("nuvlabox", data)
+}
+
+func (c *UserClient) GetNuvlaEdge(id string, fields []string) (*NuvlaResource, error) {
+	return c.Client.Get(id, fields)
 }
 
 func (c *UserClient) AddCredential(data map[string]interface{}) (*NuvlaID, error) {

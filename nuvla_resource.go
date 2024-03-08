@@ -8,7 +8,7 @@ import (
 )
 
 type NuvlaResource struct {
-	Uuid         string
+	Id           string
 	ResourceType string
 	Data         map[string]interface{}
 }
@@ -29,10 +29,11 @@ func NewResourceFromResponse(resp *http.Response) *NuvlaResource {
 		log.Errorf("Error unmarshaling response body: %s", err)
 		return nil
 	}
-
+	log.Infof("Data received from response: %v", data)
 	// Return NuvlaResource
 	return &NuvlaResource{
 		Data: data,
+		//Id:           data["id"].(string),
+		//ResourceType: data["resource-type"].(string),
 	}
-
 }

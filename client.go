@@ -131,13 +131,13 @@ func (nc *NuvlaClient) Post(endpoint string, data map[string]interface{}) (*http
 	return resp, nil
 }
 
-func (nc *NuvlaClient) Put(uri string, data map[string]interface{}, toDelete []string) (*http.Response, error) {
+func (nc *NuvlaClient) Put(uri string, data map[string]interface{}, selectFields []string) (*http.Response, error) {
 	r := &RequestOpts{
 		Method:   "PUT",
 		Endpoint: nc.buildUriEndPoint(uri),
 		JsonData: data,
 		Params: &RequestParams{
-			Select: toDelete,
+			Select: selectFields,
 		},
 	}
 
