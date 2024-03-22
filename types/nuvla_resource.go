@@ -1,4 +1,4 @@
-package api_client_go
+package types
 
 import (
 	"encoding/json"
@@ -30,6 +30,7 @@ func NewResourceFromResponse(resp *http.Response) *NuvlaResource {
 		return nil
 	}
 	log.Infof("Data received from response: %v", data)
+
 	// Return NuvlaResource
 	return &NuvlaResource{
 		Data: data,

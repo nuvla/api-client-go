@@ -1,25 +1,25 @@
-package api_client_go
+package clients
 
 import (
 	"encoding/json"
+	"github.com/nuvla/api-client-go"
+	"github.com/nuvla/api-client-go/types"
 	log "github.com/sirupsen/logrus"
 	"io"
 )
 
 type UserClient struct {
-	Client    *NuvlaClient
-	UserID    *NuvlaID
-	SessionID *NuvlaID
+	Client    *api_client_go.NuvlaClient
+	UserID    *types.NuvlaID
+	SessionID *types.NuvlaID
 }
 
 func NewUserClient(endpoint string, insecure bool, debug bool) *UserClient {
-	return &UserClient{
-		Client: NewNuvlaClient(endpoint, insecure, debug),
-	}
+	return nil
 }
 
 // Add creates a new resource of the given type and returns its ID
-func (c *UserClient) Add(resourceType string, data map[string]interface{}) (*NuvlaID, error) {
+func (c *UserClient) Add(resourceType string, data map[string]interface{}) (*types.NuvlaID, error) {
 	res, err := c.Client.Post(resourceType, data)
 	if err != nil {
 		log.Errorf("Error adding %s: %s", resourceType, err)
@@ -39,7 +39,7 @@ func (c *UserClient) Add(resourceType string, data map[string]interface{}) (*Nuv
 	}
 	log.Infof("ID of new %s: %s", resourceType, resData)
 
-	return NewNuvlaIDFromId(resData["resource-id"].(string)), nil
+	return types.NewNuvlaIDFromId(resData["resource-id"].(string)), nil
 }
 
 type SearchOptions struct {
@@ -51,14 +51,30 @@ type SearchOptions struct {
 	Aggregation string   `json:"aggregation"`
 }
 
-func (c *UserClient) AddNuvlaEdge(data map[string]interface{}) (*NuvlaID, error) {
+func (c *UserClient) AddNuvlaEdge(data map[string]interface{}) (*types.NuvlaID, error) {
 	return c.Add("nuvlabox", data)
 }
 
-func (c *UserClient) GetNuvlaEdge(id string, fields []string) (*NuvlaResource, error) {
+func (c *UserClient) GetNuvlaEdge(id string, fields []string) (*types.NuvlaResource, error) {
 	return c.Client.Get(id, fields)
 }
 
-func (c *UserClient) AddCredential(data map[string]interface{}) (*NuvlaID, error) {
+func (c *UserClient) AddCredential(data map[string]interface{}) (*types.NuvlaID, error) {
 	return c.Add("credential", data)
+}
+
+func (c *UserClient) GetId() string {
+	return c.UserID.Id
+}
+
+func (c *UserClient) GetType() ClientResourceType {
+	return UserType
+}
+
+func (c *UserClient) GetResourceMap() (map[string]interface{}, error) {
+	return nil, nil
+}
+
+func (c *UserClient) UpdateResource() error {
+	return nil
 }

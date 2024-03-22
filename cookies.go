@@ -3,6 +3,7 @@ package api_client_go
 import (
 	"bufio"
 	"encoding/json"
+	"github.com/nuvla/api-client-go/types"
 	log "github.com/sirupsen/logrus"
 	"net/http"
 	"net/http/cookiejar"
@@ -44,7 +45,7 @@ func NewNuvlaCookies(cookieFile string, endpoint string) *NuvlaCookies {
 		jar:        j,
 	}
 	if c.cookieFile == "" {
-		c.cookieFile = DefaultCookieFile
+		c.cookieFile = types.DefaultCookieFile
 	}
 
 	// Parse endpoint
@@ -107,7 +108,7 @@ func (c *NuvlaCookies) load() error {
 func (c *NuvlaCookies) Save() error {
 	// Create folder structure if required
 	// TODO: This check probably needs to be moved to a more appropriate place
-	err := BuildDirectoryStructureIfNotExists(DefaultConfigPath)
+	err := BuildDirectoryStructureIfNotExists(types.DefaultConfigPath)
 	if err != nil {
 		return err
 	}

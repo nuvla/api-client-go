@@ -1,9 +1,9 @@
 package main
 
 import (
-	apiclientgo "api-client-go"
 	"encoding/json"
 	"fmt"
+	apiclientgo "github.com/nuvla/api-client-go/clients"
 	log "github.com/sirupsen/logrus"
 	"os"
 )

@@ -1,4 +1,4 @@
-package api_client_go
+package types
 
 import "encoding/json"
 
@@ -12,8 +12,8 @@ type LogInParams interface {
 }
 
 type ApiKeyLogInParams struct {
-	Key    string `json:"key"`
-	Secret string `json:"secret"`
+	Key    string `json:"api-key"`
+	Secret string `json:"secret-key"`
 	Href   string `json:"href"`
 }
 
@@ -26,13 +26,12 @@ func NewApiKeyLogInParams(key, secret string) *ApiKeyLogInParams {
 }
 
 func (p *ApiKeyLogInParams) GetParams() map[string]string {
-	var params map[string]string
-	jsonParams, _ := json.Marshal(p)
-
-	err := json.Unmarshal(jsonParams, &params)
-	if err != nil {
-		return nil
+	params := map[string]string{
+		"href":   HrefSessionTemplateApiKey,
+		"key":    p.Key,
+		"secret": p.Secret,
 	}
+
 	return params
 }
 

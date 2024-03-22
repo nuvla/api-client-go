@@ -1,4 +1,4 @@
-package api_client_go
+package types
 
 type NuvlaResponse struct {
 }
