@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.2.0](https://github.com/nuvla/api-client-go/compare/v0.1.0...v0.2.0) (2024-03-22)
+
+
+### Features
+
+* add Options pattern to clients ([#10](https://github.com/nuvla/api-client-go/issues/10)) ([ebe5fde](https://github.com/nuvla/api-client-go/commit/ebe5fdea1b1c9dd89140760df1212e366e5095db))
+* add user client support ([#8](https://github.com/nuvla/api-client-go/issues/8)) ([4a86845](https://github.com/nuvla/api-client-go/commit/4a86845c0947099c7117db98c479b83fe22986c7))
+* implement composition patterns for session&gt;client>clients ([ebe5fde](https://github.com/nuvla/api-client-go/commit/ebe5fdea1b1c9dd89140760df1212e366e5095db))
+
 ## [0.1.0](https://github.com/nuvla/api-client-go/compare/v0.1.0...v0.1.0) (2024-03-05)
 
 
