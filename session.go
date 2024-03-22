@@ -5,6 +5,7 @@ import (
 	"compress/gzip"
 	"crypto/tls"
 	"encoding/json"
+	"github.com/nuvla/api-client-go/types"
 	log "github.com/sirupsen/logrus"
 	"io"
 	"net/http"
@@ -37,7 +38,7 @@ func NewNuvlaSession(sessionAttrs *SessionOptions) *NuvlaSession {
 		authnHeader:    sessionAttrs.AuthHeader,
 		debug:          sessionAttrs.Debug,
 		session: &http.Client{
-			Timeout: time.Second * DefaultTimeout,
+			Timeout: time.Second * types.DefaultTimeout,
 			Jar:     nil,
 		},
 	}
@@ -69,7 +70,7 @@ func (s *NuvlaSession) NeedToLogin() bool {
 	return false
 }
 
-func (s *NuvlaSession) login(loginParams LogInParams) error {
+func (s *NuvlaSession) login(loginParams types.LogInParams) error {
 	// Build headers for login
 	h := make(map[string]string)
 	h["Content-Type"] = "application/json"
@@ -80,9 +81,9 @@ func (s *NuvlaSession) login(loginParams LogInParams) error {
 	p["template"] = loginParams.GetParams()
 
 	// Send request
-	resp, err := s.Request(&RequestOpts{
+	resp, err := s.Request(&types.RequestOpts{
 		Method:   "POST",
-		Endpoint: s.endpoint + SessionEndpoint,
+		Endpoint: s.endpoint + types.SessionEndpoint,
 		JsonData: p,
 		Headers:  h,
 	})
@@ -109,7 +110,7 @@ func (s *NuvlaSession) request(req *http.Request) (*http.Response, error) {
 	return resp, nil
 }
 
-func addParamsToQuery(req *http.Request, input *RequestParams) {
+func addParamsToQuery(req *http.Request, input *types.RequestParams) {
 	if input.Select != nil {
 		q := req.URL.Query()
 		for _, f := range input.Select {
@@ -133,7 +134,7 @@ func compressPayload(payload []byte) *bytes.Buffer {
 	return &buf
 }
 
-func (s *NuvlaSession) Request(reqInput *RequestOpts) (*http.Response, error) {
+func (s *NuvlaSession) Request(reqInput *types.RequestOpts) (*http.Response, error) {
 	// Build endpoint
 	log.Infof("Requesting %s", reqInput.Endpoint)
 

@@ -2,39 +2,61 @@ package api_client_go
 
 import (
 	"fmt"
+	"github.com/nuvla/api-client-go/types"
 	log "github.com/sirupsen/logrus"
 	"net/http"
 )
 
-type NuvlaClient struct {
-	nuvlaEndpoint string
-	debug         bool
+type ClientOpts struct {
+	*SessionOptions
 
-	// Session params
-	session *NuvlaSession
+	Credentials types.LogInParams
 }
 
-func NewNuvlaClientFromOpts(attrs *SessionOptions) *NuvlaClient {
+func NewClientOpts(credentials types.LogInParams, opts ...SessionOptFunc) *ClientOpts {
+	sessionOpts := DefaultSessionOpts()
+	for _, fn := range opts {
+		fn(sessionOpts)
+	}
+	return &ClientOpts{
+		SessionOptions: sessionOpts,
+		Credentials:    credentials,
+	}
+}
 
+type NuvlaClient struct {
+	// Session params
+	*NuvlaSession
+	credentials types.LogInParams
+}
+
+func NewNuvlaClient(cred types.LogInParams, opts *SessionOptions) *NuvlaClient {
 	nc := &NuvlaClient{
-		nuvlaEndpoint: attrs.Endpoint,
-		debug:         attrs.Debug,
-		session:       NewNuvlaSession(attrs),
+		NuvlaSession: NewNuvlaSession(opts),
+		credentials:  cred,
+	}
+
+	if nc.credentials != nil && nc.reauthenticate {
+		log.Debug("Logging in with api keys...")
+		if err := nc.login(nc.credentials); err != nil {
+			log.Errorf("Error logging in with api keys: %s.", err)
+		}
+
 	}
 	return nc
 }
 
-func NewNuvlaClient(endpoint string, insecure bool, debug bool) *NuvlaClient {
-	opts := &SessionOptions{
-		Endpoint: endpoint,
-		Insecure: insecure,
-		Debug:    debug,
+func NewNuvlaClientFromOpts(cred types.LogInParams, opts ...SessionOptFunc) *NuvlaClient {
+	sessionOpts := DefaultSessionOpts()
+	for _, fn := range opts {
+		fn(sessionOpts)
 	}
-	return NewNuvlaClientFromOpts(NewSessionOpts(opts))
+
+	return NewNuvlaClient(cred, sessionOpts)
 }
 
 func (nc *NuvlaClient) LoginApiKeys(key string, secret string) error {
-	err := nc.session.login(NewApiKeyLogInParams(key, secret))
+	err := nc.login(types.NewApiKeyLogInParams(key, secret))
 	if err != nil {
 		log.Errorf("Error logging in with api keys: %s", err)
 		return err
@@ -43,7 +65,7 @@ func (nc *NuvlaClient) LoginApiKeys(key string, secret string) error {
 }
 
 func (nc *NuvlaClient) LoginUser(username string, password string) error {
-	err := nc.session.login(NewUserLogInParams(username, password))
+	err := nc.login(types.NewUserLogInParams(username, password))
 	if err != nil {
 		log.Errorf("Error logging in with user credentials: %s", err)
 		return err
@@ -52,7 +74,7 @@ func (nc *NuvlaClient) LoginUser(username string, password string) error {
 }
 
 func (nc *NuvlaClient) Logout() error {
-	return nc.session.logout()
+	return nc.logout()
 }
 
 func (nc *NuvlaClient) IsAuthenticated() bool {
@@ -60,21 +82,21 @@ func (nc *NuvlaClient) IsAuthenticated() bool {
 }
 
 func (nc *NuvlaClient) buildUriEndPoint(uriEndpoint string) string {
-	return fmt.Sprintf("%s/api/%s", nc.nuvlaEndpoint, uriEndpoint)
+	return fmt.Sprintf("%s/api/%s", nc.endpoint, uriEndpoint)
 }
 
 func (nc *NuvlaClient) buildOperationUriEndPoint(uriEndpoint string, operation string) string {
-	return fmt.Sprintf("%s/%s", nc.buildUriEndPoint(uriEndpoint), operation)
+	return fmt.Sprintf("%s/%s", uriEndpoint, operation)
 }
 
-func (nc *NuvlaClient) cimiRequest(reqInput *RequestOpts) (*http.Response, error) {
+func (nc *NuvlaClient) cimiRequest(reqInput *types.RequestOpts) (*http.Response, error) {
 	// Setup default client headers for all requests
 	// TODO: Might be configurable from session
 	if reqInput.Headers == nil {
 		reqInput.Headers = make(map[string]string)
 	}
 	reqInput.Headers["Accept"] = "application/json"
-	if nc.session.compress {
+	if nc.compress {
 		reqInput.Headers["Accept-Encoding"] = "gzip"
 	}
 
@@ -82,7 +104,7 @@ func (nc *NuvlaClient) cimiRequest(reqInput *RequestOpts) (*http.Response, error
 		reqInput.Headers["Content-Type"] = "application/json"
 	}
 
-	r, _ := nc.session.Request(reqInput)
+	r, _ := nc.Request(reqInput)
 
 	return r, nil
 }
@@ -90,16 +112,16 @@ func (nc *NuvlaClient) cimiRequest(reqInput *RequestOpts) (*http.Response, error
 // Get executes the get http method
 // Allow for selective fields to be returned via the selectFields parameter
 
-func (nc *NuvlaClient) Get(resourceId string, selectFields []string) (*NuvlaResource, error) {
+func (nc *NuvlaClient) Get(resourceId string, selectFields []string) (*types.NuvlaResource, error) {
 	// Define request inputs to allow adding select fields
-	r := &RequestOpts{
+	r := &types.RequestOpts{
 		Method:   "GET",
 		Endpoint: nc.buildUriEndPoint(resourceId),
 	}
 
 	// Do not create the request params struct unless we need it to prevent overhead down the line
 	if selectFields != nil {
-		r.Params = &RequestParams{
+		r.Params = &types.RequestParams{
 			Select: selectFields,
 		}
 	}
@@ -110,13 +132,13 @@ func (nc *NuvlaClient) Get(resourceId string, selectFields []string) (*NuvlaReso
 		return nil, err
 	}
 
-	return NewResourceFromResponse(resp), nil
+	return types.NewResourceFromResponse(resp), nil
 }
 
 // Post executes the post http method
 // Data can be any type, but it will be marshaled into JSON
 func (nc *NuvlaClient) Post(endpoint string, data map[string]interface{}) (*http.Response, error) {
-	r := &RequestOpts{
+	r := &types.RequestOpts{
 		Method:   "POST",
 		JsonData: data,
 		Endpoint: nc.buildUriEndPoint(endpoint),
@@ -132,11 +154,11 @@ func (nc *NuvlaClient) Post(endpoint string, data map[string]interface{}) (*http
 }
 
 func (nc *NuvlaClient) Put(uri string, data map[string]interface{}, selectFields []string) (*http.Response, error) {
-	r := &RequestOpts{
+	r := &types.RequestOpts{
 		Method:   "PUT",
 		Endpoint: nc.buildUriEndPoint(uri),
 		JsonData: data,
-		Params: &RequestParams{
+		Params: &types.RequestParams{
 			Select: selectFields,
 		},
 	}
@@ -150,7 +172,7 @@ func (nc *NuvlaClient) Put(uri string, data map[string]interface{}, selectFields
 }
 
 func (nc *NuvlaClient) delete(deleteEndpoint string) (*http.Response, error) {
-	r := &RequestOpts{
+	r := &types.RequestOpts{
 		Method:   "DELETE",
 		Endpoint: deleteEndpoint,
 	}

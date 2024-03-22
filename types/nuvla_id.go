@@ -1,9 +1,23 @@
-package api_client_go
+package types
 
 import (
 	log "github.com/sirupsen/logrus"
 	"strings"
 )
+
+type InvalidNuvlaID struct {
+	Id string
+}
+
+func (i *InvalidNuvlaID) Error() string {
+	return "Invalid Nuvla ID: " + i.Id
+}
+
+type EmptyNuvlaID struct{}
+
+func (e *EmptyNuvlaID) Error() string {
+	return "Empty Nuvla ID"
+}
 
 type NuvlaID struct {
 	Uuid         string
@@ -25,6 +39,10 @@ func NewNuvlaID(uuid string, resourceType string) *NuvlaID {
 
 func NewNuvlaIDFromId(id string) *NuvlaID {
 	d := strings.Split(id, "/")
+	if id == "" {
+		log.Errorf("Empty Nuvla ID")
+		return nil
+	}
 	if len(d) != 2 {
 		log.Errorf("Invalid Nuvla ID: %s", id)
 		return nil

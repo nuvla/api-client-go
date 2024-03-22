@@ -1,4 +1,4 @@
-package api_client_go
+package types
 
 const DefaultEndpoint = "https://nuvla.io"
 const DefaultInsecure = false
