@@ -109,3 +109,14 @@ func (dc *NuvlaDeploymentClient) GetResourceMap() (map[string]interface{}, error
 
 	return mapRes, nil
 }
+
+// Print resource
+func (dc *NuvlaDeploymentClient) PrintResource() {
+	p, err := json.MarshalIndent(dc.deploymentResource, "", "  ")
+	if err != nil {
+		log.Debugf("Error Marshaling %s resource, cannot print", dc.GetType())
+		return
+	}
+
+	log.Infof("%s resource: \n %s", dc.GetType(), string(p))
+}
