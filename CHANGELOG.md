@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/nuvla/api-client-go/compare/v0.3.1...v0.4.0) (2024-03-26)
+
+
+### Features
+
+* add deployment client support ([#15](https://github.com/nuvla/api-client-go/issues/15)) ([c19d358](https://github.com/nuvla/api-client-go/commit/c19d358e09b4eb4e1e8e55eb37b6211444340ff7))
+
 ## [0.3.1](https://github.com/nuvla/api-client-go/compare/v0.3.0...v0.3.1) (2024-03-26)
 
 
