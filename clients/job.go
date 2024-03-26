@@ -146,7 +146,7 @@ func (jc *NuvlaJobClient) SetProgress(progress int8) error {
 		log.Errorf("Error setting progress to %d: %s", progress, err)
 		return err
 	}
-	printResponse(res)
+	PrintResponse(res)
 	jc.jobResource.Progress = progress
 	return nil
 }
@@ -158,7 +158,7 @@ func (jc *NuvlaJobClient) SetStatusMessage(message string) {
 		log.Errorf("Error setting status message %s: %s", message, err)
 		return
 	}
-	printResponse(res)
+	PrintResponse(res)
 	jc.jobResource.StatusMessage = message
 }
 
@@ -168,7 +168,7 @@ func (jc *NuvlaJobClient) SetState(state JobState) {
 	if err != nil {
 		log.Error("Error setting state %s", state)
 	}
-	printResponse(res)
+	PrintResponse(res)
 	jc.jobResource.State = state
 }
 
@@ -180,7 +180,7 @@ func (jc *NuvlaJobClient) SetInitialState() {
 		log.Errorf("Error setting initial state %s", err)
 		return
 	}
-	printResponse(res)
+	PrintResponse(res)
 	log.Infof("Setting initial processing state... Success.")
 }
 
@@ -192,11 +192,11 @@ func (jc *NuvlaJobClient) SetSuccessState() {
 		log.Errorf("Error setting success state %s", err)
 		return
 	}
-	printResponse(res)
+	PrintResponse(res)
 	log.Debugf("Setting success state... Success.")
 }
 
-func printResponse(res *http.Response) {
+func PrintResponse(res *http.Response) {
 
 	log.Infof("Processing response with jobs...")
 	body, err := io.ReadAll(res.Body)

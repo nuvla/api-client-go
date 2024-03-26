@@ -114,7 +114,6 @@ func (dc *NuvlaDeploymentClient) GetResource() *DeploymentResource {
 	return dc.deploymentResource
 }
 
-// Print resource
 func (dc *NuvlaDeploymentClient) PrintResource() {
 	p, err := json.MarshalIndent(dc.deploymentResource, "", "  ")
 	if err != nil {
@@ -123,4 +122,20 @@ func (dc *NuvlaDeploymentClient) PrintResource() {
 	}
 
 	log.Infof("%s resource: \n %s", dc.GetType(), string(p))
+}
+
+func (dc *NuvlaDeploymentClient) SetState(state DeploymentState) error {
+	log.Infof("Setting deployment state %s...", state)
+	res, err := dc.Edit(dc.GetId(), map[string]interface{}{"state": state}, nil)
+	if err != nil {
+		log.Errorf("Error setting deployment state %s: %s", state, err)
+		return err
+	}
+	PrintResponse(res)
+	log.Infof("Setting deployment state %s... Success.", state)
+	return nil
+}
+
+func (dc *NuvlaDeploymentClient) SetStateStarted() error {
+	return dc.SetState(StateStarted)
 }
