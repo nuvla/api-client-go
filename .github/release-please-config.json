@@ -1,6 +1,6 @@
 {
   "release-type": "go",
-  "changelog-types": [
+  "changelog-sections": [
     { "type": "feat", "section": "Features" },
     { "type": "feature", "section": "Features" },
     { "type": "fix", "section": "Bug Fixes" },
@@ -17,7 +17,7 @@
   "packages": {
     ".": {
       "release-type": "go",
-      "changelog-types": [
+      "changelog-sections": [
         { "type": "feat", "section": "Features" },
         { "type": "feature", "section": "Features" },
         { "type": "fix", "section": "Bug Fixes" },
