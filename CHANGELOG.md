@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.3.0](https://github.com/nuvla/api-client-go/compare/v0.2.0...v0.3.0) (2024-03-26)
+
+
+### Features
+
+* Add job client support ([#11](https://github.com/nuvla/api-client-go/issues/11)) ([1029def](https://github.com/nuvla/api-client-go/commit/1029def4bf17bc290409b961106ce98d40ab67dd))
+* Add options pattern to client creation ([1029def](https://github.com/nuvla/api-client-go/commit/1029def4bf17bc290409b961106ce98d40ab67dd))
+
+
+### Bug Fixes
+
+* Bug on edit operation in base NuvlaClient ([1029def](https://github.com/nuvla/api-client-go/commit/1029def4bf17bc290409b961106ce98d40ab67dd))
+
 ## [0.2.0](https://github.com/nuvla/api-client-go/compare/v0.1.0...v0.2.0) (2024-03-22)
 
 
