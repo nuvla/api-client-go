@@ -1,0 +1,14 @@
+name: "NuvlaEdge-Go Dev Build"
+
+on:
+  push:
+    branches:
+      - "special-dev-branch"
+
+
+jobs:
+  placeholder:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Placeholder
+        run: echo "This is a placeholder job"
