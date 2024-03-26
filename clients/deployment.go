@@ -110,6 +110,10 @@ func (dc *NuvlaDeploymentClient) GetResourceMap() (map[string]interface{}, error
 	return mapRes, nil
 }
 
+func (dc *NuvlaDeploymentClient) GetResource() *DeploymentResource {
+	return dc.deploymentResource
+}
+
 // Print resource
 func (dc *NuvlaDeploymentClient) PrintResource() {
 	p, err := json.MarshalIndent(dc.deploymentResource, "", "  ")
