@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.3.1](https://github.com/nuvla/api-client-go/compare/v0.3.0...v0.3.1) (2024-03-26)
+
+
+### Bug Fixes
+
+* Fix deployment client lack de-sync ([72c0230](https://github.com/nuvla/api-client-go/commit/72c02300856d9056fe1aafa25d5ccc25bc31988e))
+
+
+### Continuous Integration
+
+* Fix Ci changelog-notes sections ([feb26d9](https://github.com/nuvla/api-client-go/commit/feb26d9252abec2ebc78e2a4134aa6dce6918b31))
+
 ## [0.3.0](https://github.com/nuvla/api-client-go/compare/v0.2.0...v0.3.0) (2024-03-26)
 
 
