@@ -50,7 +50,7 @@ func MarshalResourceIntoMap(resource interface{}, resMap map[string]interface{})
 
 	err = json.Unmarshal(b, &mapRes)
 	if err != nil {
-		log.Error("Error unmarshaling resource to map")
+		log.Error("Error unmarshalling resource to map")
 		return err
 	}
 

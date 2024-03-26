@@ -48,7 +48,7 @@ func main() {
 }
 ```
 
-Generic usage for NuvlaClient with detailled configuration:
+Generic usage for NuvlaClient with detailed configuration:
 
 ```go
 package main

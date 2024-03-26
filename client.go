@@ -189,7 +189,7 @@ func (nc *NuvlaClient) Operation(resourceId, operation string, data map[string]i
 }
 
 func (nc *NuvlaClient) Edit(resourceId string, data map[string]interface{}, toSelect []string) (*http.Response, error) {
-	return nc.Put(nc.buildOperationUriEndPoint(resourceId, "edit"), data, toSelect)
+	return nc.Put(resourceId, data, toSelect)
 }
 
 func (nc *NuvlaClient) Delete(resourceId string) (*http.Response, error) {

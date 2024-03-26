@@ -115,6 +115,7 @@ func (ne *NuvlaEdgeClient) LogIn() error {
 
 // Activate Operation
 func (ne *NuvlaEdgeClient) Activate() error {
+	log.Infof("Activating NuvlaEdge...%v", ne.NuvlaEdgeId)
 	res, err := ne.Operation(ne.NuvlaEdgeId.String(), "activate", nil)
 	if err != nil {
 		log.Errorf("Error activating NuvlaEdge: %s", err)
