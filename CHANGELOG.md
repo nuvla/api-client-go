@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.1](https://github.com/nuvla/api-client-go/compare/v0.4.0...v0.4.1) (2024-04-08)
+
+
+### Bug Fixes
+
+* change deployment resource module definition ([8e2fcfd](https://github.com/nuvla/api-client-go/commit/8e2fcfd0ab42423ceef9e312ef030df50a9ba53a))
+
 ## [0.4.0](https://github.com/nuvla/api-client-go/compare/v0.3.1...v0.4.0) (2024-03-26)
 
 
