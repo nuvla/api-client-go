@@ -27,9 +27,20 @@ const (
 
 type DeploymentResource struct {
 	// Required by Nuvla API server
-	Module      map[string]interface{} `json:"module"`
-	State       DeploymentState        `json:"state"`
-	ApiEndpoint string                 `json:"api-endpoint"`
+	Module struct {
+		Name          string                   `json:"name"`
+		Path          string                   `json:"path"`
+		ParentPath    string                   `json:"parent-path"`
+		SubType       string                   `json:"subtype"`
+		Versions      []map[string]interface{} `json:"versions"`
+		Content       map[string]interface{}   `json:"content"`
+		Valid         bool                     `json:"valid"`
+		Compatibility string                   `json:"compatibility"`
+		Href          string                   `json:"href"`
+	} `json:"module"`
+
+	State       DeploymentState `json:"state"`
+	ApiEndpoint string          `json:"api-endpoint"`
 
 	// Optional
 	ApiCredentials struct {
@@ -44,6 +55,7 @@ type DeploymentResource struct {
 	ExecutionMode             string                 `json:"execution-mode"`
 	CredentialName            string                 `json:"credential-name"`
 	InfrastructureServiceName string                 `json:"infrastructure-service-name"`
+	Id                        string                 `json:"id"`
 }
 
 type NuvlaDeploymentClient struct {
