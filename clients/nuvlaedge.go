@@ -47,18 +47,47 @@ type NuvlaEdgeResource struct {
 	HostLevelManagementApiKey  string `json:"host-level-management-api-key"`
 }
 
+type NuvlaEdgeSessionFreeze struct {
+	// Session data
+	nuvla.SessionOptions
+
+	// Client data
+	Credentials *types.ApiKeyLogInParams `json:"credentials"`
+
+	// NuvlaEdge Client
+	NuvlaEdgeId       string `json:"nuvlaedge-id"`
+	NuvlaEdgeStatusId string `json:"nuvlaedge-status-id"`
+	InfraServiceId    string `json:"infra-service-id"`
+	VPNServiceId      string `json:"vpn-service-id"`
+}
+
+func (sf *NuvlaEdgeSessionFreeze) Load(file string) error {
+	return nuvla.ReadJSONFromFile(file, sf)
+}
+
+func (sf *NuvlaEdgeSessionFreeze) Save(file string) error {
+	// Write b to file
+	err := nuvla.WriteIndentedJSONToFile(sf, file)
+	if err != nil {
+		log.Errorf("Error saving NuvlaEdgeSessionFreeze: %s", err)
+		return err
+	}
+
+	return nil
+}
+
 type NuvlaEdgeClient struct {
 	*nuvla.NuvlaClient
 
-	NuvlaEdgeId       *types.NuvlaID
+	NuvlaEdgeId       types.NuvlaID
 	NuvlaEdgeStatusId types.NuvlaID
-	CredentialId      *types.NuvlaID
+	CredentialId      types.NuvlaID
 
 	nuvlaEdgeResource *NuvlaEdgeResource
 	Credentials       *types.ApiKeyLogInParams
 }
 
-func NewNuvlaEdgeClient(nuvlaEdgeId *types.NuvlaID, credentials *types.ApiKeyLogInParams, opts ...nuvla.SessionOptFunc) *NuvlaEdgeClient {
+func NewNuvlaEdgeClient(nuvlaEdgeId types.NuvlaID, credentials *types.ApiKeyLogInParams, opts ...nuvla.SessionOptFunc) *NuvlaEdgeClient {
 	sessionOpts := nuvla.DefaultSessionOpts()
 	for _, fn := range opts {
 		fn(sessionOpts)
@@ -69,6 +98,29 @@ func NewNuvlaEdgeClient(nuvlaEdgeId *types.NuvlaID, credentials *types.ApiKeyLog
 		NuvlaEdgeId: nuvlaEdgeId,
 		Credentials: credentials,
 	}
+
+	if ne.Credentials != nil {
+		log.Debug("Logging in with api keys...")
+		if err := ne.LoginApiKeys(ne.Credentials.Key, ne.Credentials.Secret); err != nil {
+			log.Errorf("Error logging in with api keys: %s. Retry manually...", err)
+
+		} else {
+			log.Debug("Logging in with api keys... Success.")
+		}
+	}
+	return ne
+}
+
+func NewNuvlaEdgeClientFromSessionFreeze(f *NuvlaEdgeSessionFreeze) *NuvlaEdgeClient {
+	log.Infof("Creating NuvlaEdge client from session freeze")
+	ne := &NuvlaEdgeClient{}
+
+	ne.NuvlaEdgeId = *types.NewNuvlaIDFromId(f.NuvlaEdgeId)
+	ne.NuvlaEdgeStatusId = *types.NewNuvlaIDFromId(f.NuvlaEdgeStatusId)
+	ne.Credentials = f.Credentials
+
+	// Create NuvlaClient
+	ne.NuvlaClient = nuvla.NewNuvlaClient(ne.Credentials, &f.SessionOptions)
 
 	if ne.Credentials != nil {
 		log.Debug("Logging in with api keys...")
@@ -240,4 +292,17 @@ func (ne *NuvlaEdgeClient) UpdateResource() error {
 
 func (ne *NuvlaEdgeClient) GetNuvlaClient() *nuvla.NuvlaClient {
 	return ne.NuvlaClient
+}
+
+func (ne *NuvlaEdgeClient) Freeze(file string) error {
+	log.Infof("Freezing NuvlaEdge client...")
+	f := NuvlaEdgeSessionFreeze{
+		SessionOptions:    ne.GetSessionOpts(),
+		Credentials:       ne.Credentials,
+		NuvlaEdgeId:       ne.NuvlaEdgeId.String(),
+		NuvlaEdgeStatusId: ne.NuvlaEdgeStatusId.String(),
+		InfraServiceId:    ne.nuvlaEdgeResource.InfrastructureServiceGroup,
+	}
+
+	return f.Save(file)
 }

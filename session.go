@@ -15,6 +15,7 @@ import (
 
 type NuvlaSession struct {
 	endpoint       string
+	insecure       bool
 	reauthenticate bool
 	persistCookie  bool
 	loginParams    map[string]string
@@ -200,4 +201,18 @@ func (s *NuvlaSession) logout() error {
 
 func (s *NuvlaSession) String() string {
 	return "Nuvla session for endpoint " + s.endpoint
+}
+
+func (s *NuvlaSession) GetSessionOpts() SessionOptions {
+	// Fill all session opts
+	return SessionOptions{
+		Endpoint:       s.endpoint,
+		Insecure:       s.insecure,
+		ReAuthenticate: s.reauthenticate,
+		PersistCookie:  s.persistCookie,
+		CookieFile:     s.cookies.cookieFile,
+		AuthHeader:     s.authnHeader,
+		Debug:          s.debug,
+		Compress:       s.compress,
+	}
 }
