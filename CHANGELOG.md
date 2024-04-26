@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.5.0](https://github.com/nuvla/api-client-go/compare/v0.4.1...v0.5.0) (2024-04-26)
+
+
+### Features
+
+* add client freeze capabilities to NuvlaEdgeClient ([#19](https://github.com/nuvla/api-client-go/issues/19)) ([96caabb](https://github.com/nuvla/api-client-go/commit/96caabb3cbc5da3541eaf87dba4cfcca0efbd068))
+
+
+### Documentation
+
+* update README clients implementation status ([3d5d485](https://github.com/nuvla/api-client-go/commit/3d5d4858945007d05416fe2a0fc30786195633b2))
+
 ## [0.4.1](https://github.com/nuvla/api-client-go/compare/v0.4.0...v0.4.1) (2024-04-08)
 
 
