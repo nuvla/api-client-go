@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.5.2](https://github.com/nuvla/api-client-go/compare/v0.5.1...v0.5.2) (2024-04-29)
+
+
+### Bug Fixes
+
+* reduce unnecessary verbosity ([aa40ffd](https://github.com/nuvla/api-client-go/commit/aa40ffd34ea6dbebd7332fb58c77324ade601f0b))
+* safe check for null pointer exception on NuvlaEdge client ([ad65b49](https://github.com/nuvla/api-client-go/commit/ad65b49676ef6c68076a438e948001439adc496c))
+
 ## [0.5.1](https://github.com/nuvla/api-client-go/compare/v0.5.0...v0.5.1) (2024-04-29)
 
 
