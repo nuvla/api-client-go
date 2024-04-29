@@ -297,11 +297,16 @@ func (ne *NuvlaEdgeClient) GetNuvlaClient() *nuvla.NuvlaClient {
 func (ne *NuvlaEdgeClient) Freeze(file string) error {
 	log.Infof("Freezing NuvlaEdge client...")
 	f := NuvlaEdgeSessionFreeze{
-		SessionOptions:    ne.GetSessionOpts(),
-		Credentials:       ne.Credentials,
-		NuvlaEdgeId:       ne.NuvlaEdgeId.String(),
-		NuvlaEdgeStatusId: ne.NuvlaEdgeStatusId.String(),
-		InfraServiceId:    ne.nuvlaEdgeResource.InfrastructureServiceGroup,
+		SessionOptions: ne.GetSessionOpts(),
+		Credentials:    ne.Credentials,
+		// If this point is reached, NuvlaEdgeID should never be nil or empty so if null pointer exception
+		// is raised here, there is another issue
+		NuvlaEdgeId:    ne.NuvlaEdgeId.String(),
+		InfraServiceId: ne.nuvlaEdgeResource.InfrastructureServiceGroup,
+	}
+
+	if ne.NuvlaEdgeStatusId != nil {
+		f.NuvlaEdgeStatusId = ne.NuvlaEdgeStatusId.String()
 	}
 
 	return f.Save(file)
