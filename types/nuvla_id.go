@@ -40,9 +40,11 @@ func NewNuvlaID(uuid string, resourceType string) *NuvlaID {
 func NewNuvlaIDFromId(id string) *NuvlaID {
 	d := strings.Split(id, "/")
 	if id == "" {
-		log.Errorf("Empty Nuvla ID")
-		return nil
+		log.Warnf("Empty Nuvla ID")
+		// If empty string, return an empty NuvlaID to prevent NullPointerExceptions
+		return &NuvlaID{}
 	}
+
 	if len(d) != 2 {
 		log.Errorf("Invalid Nuvla ID: %s", id)
 		return nil
