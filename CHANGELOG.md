@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.5.1](https://github.com/nuvla/api-client-go/compare/v0.5.0...v0.5.1) (2024-04-29)
+
+
+### Bug Fixes
+
+* allow empty NuvlaID structs when ID is empty string ([e5afa5f](https://github.com/nuvla/api-client-go/commit/e5afa5f88db2bc73ed7dc60e5630ece87e9b5ac3))
+* convert NuvlaID into pointers in NuvlaEdge client ([6af22da](https://github.com/nuvla/api-client-go/commit/6af22dab57b8b8ccc20f509165b6d42fb8272672))
+
 ## [0.5.0](https://github.com/nuvla/api-client-go/compare/v0.4.1...v0.5.0) (2024-04-26)
 
 
