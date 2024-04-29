@@ -79,15 +79,15 @@ func (sf *NuvlaEdgeSessionFreeze) Save(file string) error {
 type NuvlaEdgeClient struct {
 	*nuvla.NuvlaClient
 
-	NuvlaEdgeId       types.NuvlaID
-	NuvlaEdgeStatusId types.NuvlaID
-	CredentialId      types.NuvlaID
+	NuvlaEdgeId       *types.NuvlaID
+	NuvlaEdgeStatusId *types.NuvlaID
+	CredentialId      *types.NuvlaID
 
 	nuvlaEdgeResource *NuvlaEdgeResource
 	Credentials       *types.ApiKeyLogInParams
 }
 
-func NewNuvlaEdgeClient(nuvlaEdgeId types.NuvlaID, credentials *types.ApiKeyLogInParams, opts ...nuvla.SessionOptFunc) *NuvlaEdgeClient {
+func NewNuvlaEdgeClient(nuvlaEdgeId string, credentials *types.ApiKeyLogInParams, opts ...nuvla.SessionOptFunc) *NuvlaEdgeClient {
 	sessionOpts := nuvla.DefaultSessionOpts()
 	for _, fn := range opts {
 		fn(sessionOpts)
@@ -95,7 +95,7 @@ func NewNuvlaEdgeClient(nuvlaEdgeId types.NuvlaID, credentials *types.ApiKeyLogI
 	log.Infof("Creating NuvlaEdge client with options: %v", sessionOpts)
 	ne := &NuvlaEdgeClient{
 		NuvlaClient: nuvla.NewNuvlaClient(credentials, sessionOpts),
-		NuvlaEdgeId: nuvlaEdgeId,
+		NuvlaEdgeId: types.NewNuvlaIDFromId(nuvlaEdgeId),
 		Credentials: credentials,
 	}
 
@@ -115,8 +115,8 @@ func NewNuvlaEdgeClientFromSessionFreeze(f *NuvlaEdgeSessionFreeze) *NuvlaEdgeCl
 	log.Infof("Creating NuvlaEdge client from session freeze")
 	ne := &NuvlaEdgeClient{}
 
-	ne.NuvlaEdgeId = *types.NewNuvlaIDFromId(f.NuvlaEdgeId)
-	ne.NuvlaEdgeStatusId = *types.NewNuvlaIDFromId(f.NuvlaEdgeStatusId)
+	ne.NuvlaEdgeId = types.NewNuvlaIDFromId(f.NuvlaEdgeId)
+	ne.NuvlaEdgeStatusId = types.NewNuvlaIDFromId(f.NuvlaEdgeStatusId)
 	ne.Credentials = f.Credentials
 
 	// Create NuvlaClient
@@ -215,7 +215,7 @@ func (ne *NuvlaEdgeClient) Commission(data map[string]interface{}) error {
 	log.Infof("Updating NuvlaEdge resource... Success")
 
 	if ne.nuvlaEdgeResource.NuvlaBoxStatus != "" {
-		ne.NuvlaEdgeStatusId = *types.NewNuvlaIDFromId(ne.nuvlaEdgeResource.NuvlaBoxStatus)
+		ne.NuvlaEdgeStatusId = types.NewNuvlaIDFromId(ne.nuvlaEdgeResource.NuvlaBoxStatus)
 	} else {
 		return fmt.Errorf("nuvlabox-status not found in resource")
 	}
