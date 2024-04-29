@@ -29,7 +29,7 @@ func NewResourceFromResponse(resp *http.Response) *NuvlaResource {
 		log.Errorf("Error unmarshaling response body: %s", err)
 		return nil
 	}
-	log.Infof("Data received from response: %v", data)
+	log.Debugf("Data received from response: %v", data)
 
 	// Return NuvlaResource
 	return &NuvlaResource{
