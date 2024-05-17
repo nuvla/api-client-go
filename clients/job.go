@@ -3,55 +3,18 @@ package clients
 import (
 	"encoding/json"
 	nuvla "github.com/nuvla/api-client-go"
+	"github.com/nuvla/api-client-go/clients/resources"
 	"github.com/nuvla/api-client-go/types"
 	log "github.com/sirupsen/logrus"
 	"io"
 	"net/http"
 )
 
-type JobState string
-
-const (
-	StateQueued   JobState = "QUEUED"
-	StateRUNNING  JobState = "RUNNING"
-	StateFailed   JobState = "FAILED"
-	StateCanceled JobState = "CANCELED"
-	StateSuccess  JobState = "SUCCESS"
-)
-
-type JobResource struct {
-	// Required
-	State         JobState `json:"state"`
-	Action        string   `json:"action"`
-	Progress      int8     `json:"progress"`
-	ExecutionMode string   `json:"execution-mode"`
-
-	// Optional
-	Version        int8 `json:"version"`
-	TargetResource struct {
-		Href string `json:"href"`
-	} `json:"target-resource"`
-	AffectedResources []struct {
-		Href string `json:"href"`
-	} `json:"affected-resources"`
-	ReturnCode         int8   `json:"return-code"`
-	StatusMessage      string `json:"status-message"`
-	TimeOfStatusChange string `json:"time-of-status-change"` // TODO: Try using timestamps and automatic conversion
-	ParentJob          string `json:"parent-job"`
-	NestedJobs         string `json:"nested-jobs"`
-	Priority           int16  `json:"priority"`
-	Started            string `json:"started"` // TODO: Try using timestamps and automatic conversion
-	Duration           int16  `json:"duration"`
-	Expiry             string `json:"expiry"` // TODO: Try using timestamps and automatic conversion
-	Output             string `json:"output"`
-	Payload            string `json:"payload"` // JSON-compliant string to be passed to the job, such as execution arguments
-}
-
 type NuvlaJobClient struct {
 	*nuvla.NuvlaClient
 
 	jobId       *types.NuvlaID
-	jobResource *JobResource
+	jobResource *resources.JobResource
 }
 
 func NewJobClient(jobId string, client *nuvla.NuvlaClient) *NuvlaJobClient {
@@ -63,7 +26,7 @@ func NewJobClient(jobId string, client *nuvla.NuvlaClient) *NuvlaJobClient {
 	return &NuvlaJobClient{
 		NuvlaClient: client,
 		jobId:       types.NewNuvlaIDFromId(jobId),
-		jobResource: &JobResource{},
+		jobResource: &resources.JobResource{},
 	}
 }
 
@@ -75,7 +38,7 @@ func (jc *NuvlaJobClient) UpdateResource() error {
 	}
 
 	if jc.jobResource == nil {
-		jc.jobResource = &JobResource{}
+		jc.jobResource = &resources.JobResource{}
 	}
 
 	b, err := json.Marshal(res.Data)
@@ -99,8 +62,8 @@ func (jc *NuvlaJobClient) GetId() string {
 	return jc.jobId.Id
 }
 
-func (jc *NuvlaJobClient) GetType() ClientResourceType {
-	return JobType
+func (jc *NuvlaJobClient) GetType() resources.NuvlaResourceType {
+	return resources.JobType
 }
 
 func (jc *NuvlaJobClient) GetResourceMap() (map[string]interface{}, error) {
@@ -116,7 +79,7 @@ func (jc *NuvlaJobClient) GetActionName() string {
 	return jc.jobResource.Action
 }
 
-func (jc *NuvlaJobClient) GetResource() *JobResource {
+func (jc *NuvlaJobClient) GetResource() *resources.JobResource {
 	return jc.jobResource
 }
 
@@ -163,7 +126,7 @@ func (jc *NuvlaJobClient) SetStatusMessage(message string) {
 }
 
 // Set State
-func (jc *NuvlaJobClient) SetState(state JobState) {
+func (jc *NuvlaJobClient) SetState(state resources.JobState) {
 	res, err := jc.Edit(jc.jobId.Id, map[string]interface{}{"state": state}, nil)
 	if err != nil {
 		log.Error("Error setting state %s", state)
@@ -175,7 +138,7 @@ func (jc *NuvlaJobClient) SetState(state JobState) {
 // SetInitialState sets both the state to RUNNING and the progress to 10
 func (jc *NuvlaJobClient) SetInitialState() {
 	log.Infof("Setting initial processing state...")
-	res, err := jc.Edit(jc.jobId.Id, map[string]interface{}{"state": StateRUNNING, "progress": 10}, nil)
+	res, err := jc.Edit(jc.jobId.Id, map[string]interface{}{"state": resources.StateRUNNING, "progress": 10}, nil)
 	if err != nil {
 		log.Errorf("Error setting initial state %s", err)
 		return
@@ -187,7 +150,7 @@ func (jc *NuvlaJobClient) SetInitialState() {
 // SetSuccessState sets the state to SUCCESS and the progress to 100
 func (jc *NuvlaJobClient) SetSuccessState() {
 	log.Debugf("Setting success state...")
-	res, err := jc.Edit(jc.jobId.Id, map[string]interface{}{"state": StateSuccess, "progress": 100}, nil)
+	res, err := jc.Edit(jc.jobId.Id, map[string]interface{}{"state": resources.StateSuccess, "progress": 100}, nil)
 	if err != nil {
 		log.Errorf("Error setting success state %s", err)
 		return

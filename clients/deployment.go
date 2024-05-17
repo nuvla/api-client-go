@@ -2,68 +2,19 @@ package clients
 
 import (
 	"encoding/json"
+	"fmt"
 	nuvla "github.com/nuvla/api-client-go"
+	"github.com/nuvla/api-client-go/clients/resources"
 	"github.com/nuvla/api-client-go/types"
 	log "github.com/sirupsen/logrus"
 )
-
-type DeploymentState string
-
-const (
-	StateCreated    DeploymentState = "CREATED"
-	StateStarted    DeploymentState = "STARTED"
-	StateStarting   DeploymentState = "STARTING"
-	StateStopped    DeploymentState = "STOPPED"
-	StateStopping   DeploymentState = "STOPPING"
-	StatePausing    DeploymentState = "PAUSING"
-	StatePaused     DeploymentState = "PAUSED"
-	StateSuspending DeploymentState = "SUSPENDING"
-	StateSuspended  DeploymentState = "SUSPENDED"
-	StateUpdating   DeploymentState = "UPDATING"
-	StateUpdated    DeploymentState = "UPDATED"
-	StatePending    DeploymentState = "PENDING"
-	StateError      DeploymentState = "ERROR"
-)
-
-type DeploymentResource struct {
-	// Required by Nuvla API server
-	Module struct {
-		Name          string                   `json:"name"`
-		Path          string                   `json:"path"`
-		ParentPath    string                   `json:"parent-path"`
-		SubType       string                   `json:"subtype"`
-		Versions      []map[string]interface{} `json:"versions"`
-		Content       map[string]interface{}   `json:"content"`
-		Valid         bool                     `json:"valid"`
-		Compatibility string                   `json:"compatibility"`
-		Href          string                   `json:"href"`
-	} `json:"module"`
-
-	State       DeploymentState `json:"state"`
-	ApiEndpoint string          `json:"api-endpoint"`
-
-	// Optional
-	ApiCredentials struct {
-		ApiKey    string `json:"api-key"`
-		ApiSecret string `json:"api-secret"`
-	} `json:"api-credentials"`
-
-	Data                      map[string]interface{} `json:"data"`
-	RegistriesCredentials     []string               `json:"registries-credentials"`
-	InfrastructureService     string                 `json:"infrastructure-service"`
-	Nuvlabox                  string                 `json:"nuvlabox"`
-	ExecutionMode             string                 `json:"execution-mode"`
-	CredentialName            string                 `json:"credential-name"`
-	InfrastructureServiceName string                 `json:"infrastructure-service-name"`
-	Id                        string                 `json:"id"`
-}
 
 type NuvlaDeploymentClient struct {
 	*nuvla.NuvlaClient
 
 	deploymentId *types.NuvlaID
 
-	deploymentResource *DeploymentResource
+	deploymentResource *resources.DeploymentResource
 }
 
 func NewNuvlaDeploymentClient(deploymentId string, client *nuvla.NuvlaClient) *NuvlaDeploymentClient {
@@ -85,7 +36,7 @@ func (dc *NuvlaDeploymentClient) UpdateResource() error {
 	}
 
 	if dc.deploymentResource == nil {
-		dc.deploymentResource = &DeploymentResource{}
+		dc.deploymentResource = &resources.DeploymentResource{}
 	}
 
 	b, err := json.Marshal(res.Data)
@@ -107,8 +58,8 @@ func (dc *NuvlaDeploymentClient) GetId() string {
 	return dc.deploymentId.Id
 }
 
-func (dc *NuvlaDeploymentClient) GetType() ClientResourceType {
-	return DeploymentType
+func (dc *NuvlaDeploymentClient) GetType() resources.NuvlaResourceType {
+	return resources.DeploymentType
 }
 
 func (dc *NuvlaDeploymentClient) GetResourceMap() (map[string]interface{}, error) {
@@ -122,7 +73,7 @@ func (dc *NuvlaDeploymentClient) GetResourceMap() (map[string]interface{}, error
 	return mapRes, nil
 }
 
-func (dc *NuvlaDeploymentClient) GetResource() *DeploymentResource {
+func (dc *NuvlaDeploymentClient) GetResource() *resources.DeploymentResource {
 	return dc.deploymentResource
 }
 
@@ -136,7 +87,7 @@ func (dc *NuvlaDeploymentClient) PrintResource() {
 	log.Infof("%s resource: \n %s", dc.GetType(), string(p))
 }
 
-func (dc *NuvlaDeploymentClient) SetState(state DeploymentState) error {
+func (dc *NuvlaDeploymentClient) SetState(state resources.DeploymentState) error {
 	log.Infof("Setting deployment state %s...", state)
 	res, err := dc.Edit(dc.GetId(), map[string]interface{}{"state": state}, nil)
 	if err != nil {
@@ -149,5 +100,14 @@ func (dc *NuvlaDeploymentClient) SetState(state DeploymentState) error {
 }
 
 func (dc *NuvlaDeploymentClient) SetStateStarted() error {
-	return dc.SetState(StateStarted)
+	return dc.SetState(resources.StateStarted)
+}
+
+func (dc *NuvlaDeploymentClient) GetParameter(paramId, paramName, nodeId, qSelect string) error {
+	filters := fmt.Sprintf("parent='%s' and name='%s'", paramId, paramName)
+	if nodeId != "" {
+		// Concatenate node-id='nodeId'
+		filters = filters + fmt.Sprintf(" and node-id='%s'", nodeId)
+	}
+	return nil
 }

@@ -4,48 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	nuvla "github.com/nuvla/api-client-go"
+	"github.com/nuvla/api-client-go/clients/resources"
 	"github.com/nuvla/api-client-go/types"
 	log "github.com/sirupsen/logrus"
 	"io"
 	"net/http"
 )
-
-type NuvlaEdgeState string
-
-const (
-	NuvlaEdgeStateNew             NuvlaEdgeState = "NEW"
-	NuvlaEdgeStateActivated       NuvlaEdgeState = "ACTIVATED"
-	NuvlaEdgeStateCommissioned    NuvlaEdgeState = "COMMISSIONED"
-	NuvlaEdgeStateDecommissioning NuvlaEdgeState = "DECOMMISSIONING"
-	NuvlaEdgeStateDecommissioned  NuvlaEdgeState = "DECOMMISSIONED"
-	NuvlaEdgeStateError           NuvlaEdgeState = "ERROR"
-	NuvlaEdgeStateSuspended       NuvlaEdgeState = "SUSPENDED"
-)
-
-type NuvlaEdgeResource struct {
-	Resource
-
-	// Required
-	State             NuvlaEdgeState `json:"state"`
-	RefreshInterval   int            `json:"refresh-interval"`
-	HeartbeatInterval int            `json:"heartbeat-interval"`
-	Version           int            `json:"version"`
-	Owner             string         `json:"owner"`
-
-	// Optional
-	Location              []string `json:"location"`
-	VPNServerID           string   `json:"vpn-server-id"`
-	SSHKeys               []string `json:"ssh-keys"`
-	Capabilities          []string `json:"capabilities"`
-	Online                bool     `json:"online"`
-	InferredLocation      string   `json:"inferred-location"`
-	NuvlaBoxEngineVersion string   `json:"nuvlabox-engine-version"`
-
-	NuvlaBoxStatus             string `json:"nuvlabox-status"`
-	InfrastructureServiceGroup string `json:"infrastructure-service-group"`
-	CredentialApiKey           string `json:"credential-api-key"`
-	HostLevelManagementApiKey  string `json:"host-level-management-api-key"`
-}
 
 type NuvlaEdgeSessionFreeze struct {
 	// Session data
@@ -83,7 +47,7 @@ type NuvlaEdgeClient struct {
 	NuvlaEdgeStatusId *types.NuvlaID
 	CredentialId      *types.NuvlaID
 
-	nuvlaEdgeResource *NuvlaEdgeResource
+	nuvlaEdgeResource *resources.NuvlaEdgeResource
 	Credentials       *types.ApiKeyLogInParams
 }
 
@@ -251,8 +215,8 @@ func (ne *NuvlaEdgeClient) GetId() string {
 	return ne.NuvlaEdgeId.Id
 }
 
-func (ne *NuvlaEdgeClient) GetType() ClientResourceType {
-	return NuvlaEdgeType
+func (ne *NuvlaEdgeClient) GetType() resources.NuvlaResourceType {
+	return resources.NuvlaEdgeType
 }
 
 func (ne *NuvlaEdgeClient) GetResourceMap() (map[string]interface{}, error) {
@@ -272,7 +236,7 @@ func (ne *NuvlaEdgeClient) UpdateResource() error {
 	}
 
 	if ne.nuvlaEdgeResource == nil {
-		ne.nuvlaEdgeResource = &NuvlaEdgeResource{}
+		ne.nuvlaEdgeResource = &resources.NuvlaEdgeResource{}
 	}
 
 	b, err := json.Marshal(res.Data)
