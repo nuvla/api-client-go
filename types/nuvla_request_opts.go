@@ -3,7 +3,7 @@ package types
 type RequestOpts struct {
 	Method   string
 	Endpoint string
-	Data     interface{}
+	Data     map[string]string
 	JsonData map[string]interface{}
 	Params   *RequestParams
 	Headers  map[string]string

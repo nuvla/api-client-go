@@ -2,9 +2,12 @@ package api_client_go
 
 import (
 	"fmt"
+	"github.com/nuvla/api-client-go/clients/resources"
 	"github.com/nuvla/api-client-go/types"
 	log "github.com/sirupsen/logrus"
 	"net/http"
+	"reflect"
+	"strconv"
 )
 
 type ClientOpts struct {
@@ -100,10 +103,6 @@ func (nc *NuvlaClient) cimiRequest(reqInput *types.RequestOpts) (*http.Response,
 		reqInput.Headers["Accept-Encoding"] = "gzip"
 	}
 
-	if reqInput.JsonData != nil {
-		reqInput.Headers["Content-Type"] = "application/json"
-	}
-
 	r, _ := nc.Request(reqInput)
 
 	return r, nil
@@ -194,4 +193,67 @@ func (nc *NuvlaClient) Edit(resourceId string, data map[string]interface{}, toSe
 
 func (nc *NuvlaClient) Delete(resourceId string) (*http.Response, error) {
 	return nc.delete(nc.buildOperationUriEndPoint(resourceId, "delete"))
+}
+
+type SearchOptions struct {
+	First       int    `json:"first"`
+	Last        int    `json:"last"`
+	Filter      string `json:"filter"`
+	Fields      string `json:"fields"`
+	OrderBy     string `json:"orderby"`
+	Aggregation string `json:"aggregation"`
+}
+
+// GetCleanMap returns a map with only the non-nil fields
+func (so *SearchOptions) GetCleanMap() map[string]string {
+	m := make(map[string]string)
+	val := reflect.ValueOf(so).Elem()
+
+	for i := 0; i < val.NumField(); i++ {
+		valueField := val.Field(i)
+		typeField := val.Type().Field(i)
+		jsonTag := typeField.Tag.Get("json")
+
+		if !valueField.IsZero() {
+			if typeField.Name == "First" || typeField.Name == "Last" {
+				m[jsonTag] = strconv.Itoa(int(valueField.Int()))
+			} else {
+				m[jsonTag] = valueField.String()
+			}
+		}
+	}
+	return m
+}
+
+func NewDefaultSearchOptions() *SearchOptions {
+	return &SearchOptions{
+		First:       0,
+		Last:        0,
+		Filter:      "",
+		Fields:      "",
+		OrderBy:     "",
+		Aggregation: "",
+	}
+}
+
+func (nc *NuvlaClient) Search(resourceType string, opts *SearchOptions) (*resources.NuvlaResourceCollection, error) {
+
+	r := &types.RequestOpts{
+		Method:   "PUT",
+		Endpoint: nc.buildUriEndPoint(resourceType),
+		Params:   nil,
+		JsonData: nil,
+		Data:     opts.GetCleanMap(),
+	}
+	resp, err := nc.cimiRequest(r)
+	if err != nil {
+		log.Errorf("Error executing GET request: %s", err)
+		return nil, err
+	}
+	collection, err := resources.NewCollectionFromResponse(resp)
+	if err != nil {
+		log.Errorf("Error creating resource collection: %s", err)
+		return nil, err
+	}
+	return collection, err
 }
