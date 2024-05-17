@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.6.0](https://github.com/nuvla/api-client-go/compare/v0.5.2...v0.6.0) (2024-05-17)
+
+
+### Features
+
+* add Search operation to base client ([5fdeb6a](https://github.com/nuvla/api-client-go/commit/5fdeb6ab9129bb20ae0ed25b007af3dcada9ddcc))
+
+
+### Minor Changes
+
+* Add a function to parse json or data and encode the headers accordingly ([#24](https://github.com/nuvla/api-client-go/issues/24)) ([941cda8](https://github.com/nuvla/api-client-go/commit/941cda8caeb24d5af3a08cbf601426174d3e33e5))
+
+
+### Code Refactoring
+
+* Created a custom package to group all the resource types ([#23](https://github.com/nuvla/api-client-go/issues/23)) ([d0c43ef](https://github.com/nuvla/api-client-go/commit/d0c43efec1c737e01b728d49d7b9749ca042fae9))
+* Remove resources from clients and point to resources package ([#25](https://github.com/nuvla/api-client-go/issues/25)) ([4ba7dc4](https://github.com/nuvla/api-client-go/commit/4ba7dc4279f16a79bbcedf2f00607ad753058be2))
+
+
+### Continuous Integration
+
+* Add minor and patch sections for minor features or changes to bump only patch ([604f346](https://github.com/nuvla/api-client-go/commit/604f346ff7921a0dd440220e07b28d51b8618a6b))
+
 ## [0.5.2](https://github.com/nuvla/api-client-go/compare/v0.5.1...v0.5.2) (2024-04-29)
 
 
