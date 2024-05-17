@@ -24,6 +24,60 @@ type DeploymentResource struct {
 	Id                        string                 `json:"id"`
 }
 
+type DeploymentParameterResource struct {
+	CommonAttributesResource
+	NodeId string                 `json:"node-id"`
+	Value  string                 `json:"value"`
+	Acl    map[string]interface{} `json:"acl"`
+	// TODO: ATM, acl is only used here in the client but it belongs to CommonAttributesResource
+}
+
+func DefaultDeploymentParamResource() *DeploymentParameterResource {
+	return &DeploymentParameterResource{}
+}
+
+type DeploymentParamOptsFunc func(*DeploymentParameterResource)
+
+func WithName(name string) DeploymentParamOptsFunc {
+	return func(dp *DeploymentParameterResource) {
+		dp.Name = name
+	}
+}
+
+func WithDescription(description string) DeploymentParamOptsFunc {
+	return func(dp *DeploymentParameterResource) {
+		dp.Description = description
+	}
+}
+
+func WithValue(value string) DeploymentParamOptsFunc {
+	return func(dp *DeploymentParameterResource) {
+		dp.Value = value
+	}
+}
+
+func WithParent(parent string) DeploymentParamOptsFunc {
+	return func(dp *DeploymentParameterResource) {
+		dp.Parent = parent
+	}
+}
+
+func WithAcl(acl map[string]interface{}) DeploymentParamOptsFunc {
+	return func(dp *DeploymentParameterResource) {
+		dp.Acl = acl
+	}
+}
+
+func WithNodeId(nodeId string) DeploymentParamOptsFunc {
+	return func(dp *DeploymentParameterResource) {
+		dp.NodeId = nodeId
+	}
+}
+
+func (dp *DeploymentParameterResource) New() NuvlaResource {
+	return &DeploymentParameterResource{}
+}
+
 type DeploymentState string
 
 const (

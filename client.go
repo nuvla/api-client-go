@@ -1,13 +1,14 @@
 package api_client_go
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/nuvla/api-client-go/clients/resources"
+	"github.com/nuvla/api-client-go/common"
 	"github.com/nuvla/api-client-go/types"
 	log "github.com/sirupsen/logrus"
+	"io"
 	"net/http"
-	"reflect"
-	"strconv"
 )
 
 type ClientOpts struct {
@@ -196,33 +197,13 @@ func (nc *NuvlaClient) Delete(resourceId string) (*http.Response, error) {
 }
 
 type SearchOptions struct {
-	First       int    `json:"first"`
-	Last        int    `json:"last"`
-	Filter      string `json:"filter"`
-	Fields      string `json:"fields"`
-	OrderBy     string `json:"orderby"`
-	Aggregation string `json:"aggregation"`
-}
-
-// GetCleanMap returns a map with only the non-nil fields
-func (so *SearchOptions) GetCleanMap() map[string]string {
-	m := make(map[string]string)
-	val := reflect.ValueOf(so).Elem()
-
-	for i := 0; i < val.NumField(); i++ {
-		valueField := val.Field(i)
-		typeField := val.Type().Field(i)
-		jsonTag := typeField.Tag.Get("json")
-
-		if !valueField.IsZero() {
-			if typeField.Name == "First" || typeField.Name == "Last" {
-				m[jsonTag] = strconv.Itoa(int(valueField.Int()))
-			} else {
-				m[jsonTag] = valueField.String()
-			}
-		}
-	}
-	return m
+	First       int      `json:"first"`
+	Last        int      `json:"last"`
+	Filter      string   `json:"filter"`
+	Fields      string   `json:"fields"`
+	OrderBy     string   `json:"orderby"`
+	Select      []string `json:"select"`
+	Aggregation string   `json:"aggregation"`
 }
 
 func NewDefaultSearchOptions() *SearchOptions {
@@ -243,7 +224,7 @@ func (nc *NuvlaClient) Search(resourceType string, opts *SearchOptions) (*resour
 		Endpoint: nc.buildUriEndPoint(resourceType),
 		Params:   nil,
 		JsonData: nil,
-		Data:     opts.GetCleanMap(),
+		Data:     common.GetCleanMapFromStruct(opts),
 	}
 	resp, err := nc.cimiRequest(r)
 	if err != nil {
@@ -256,4 +237,28 @@ func (nc *NuvlaClient) Search(resourceType string, opts *SearchOptions) (*resour
 		return nil, err
 	}
 	return collection, err
+}
+
+// Add creates a new resource of the given type and returns its ID
+func (nc *NuvlaClient) Add(resourceType resources.NuvlaResourceType, data map[string]interface{}) (*types.NuvlaID, error) {
+	res, err := nc.Post(string(resourceType), data)
+	if err != nil {
+		log.Errorf("Error adding %s: %s", resourceType, err)
+		return nil, err
+	}
+	var resData map[string]interface{}
+
+	bodyBytes, err := io.ReadAll(res.Body)
+	if err != nil {
+		log.Errorf("Error reading response body, cannot extract ID: %s", err)
+		return nil, err
+	}
+	err = json.Unmarshal(bodyBytes, &resData)
+	if err != nil {
+		log.Errorf("Error unmarshaling response body, cannot extract ID: %s", err)
+		return nil, err
+	}
+	log.Infof("ID of new %s: %s", resourceType, resData)
+
+	return types.NewNuvlaIDFromId(resData["resource-id"].(string)), nil
 }

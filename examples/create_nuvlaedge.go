@@ -34,7 +34,7 @@ func NewNuvlaBoxMinResourceData() map[string]interface{} {
 
 func main() {
 	c := apiclientgo.NewUserClient("https://nuvla.io", false, false)
-	err := c.Client.LoginApiKeys("credential/<UUID>", "<SECRET>")
+	err := c.LoginApiKeys("credential/<UUID>", "<SECRET>")
 	if err != nil {
 		fmt.Println(err)
 	}

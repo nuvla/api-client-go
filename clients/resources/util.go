@@ -6,27 +6,15 @@ const (
 
 type NuvlaResourceType string
 
-const (
-	DeploymentType NuvlaResourceType = "deployment"
-	UserType       NuvlaResourceType = "user"
-	NuvlaEdgeType  NuvlaResourceType = "nuvlaedge"
-	NuvlaBoxType   NuvlaResourceType = "nuvlabox"
-	JobType        NuvlaResourceType = "job"
-)
-
-func GetResourceFromString(resource string) NuvlaResourceType {
-	switch resource {
-	case "deployment":
-		return DeploymentType
-	case "user":
-		return UserType
-	case "nuvlaedge":
-		return NuvlaEdgeType
-	case "nuvlabox":
-		return NuvlaBoxType
-	case "job":
-		return JobType
-	default:
-		return ""
-	}
+func (n NuvlaResourceType) String() string {
+	return string(n)
 }
+
+const (
+	DeploymentType          NuvlaResourceType = "deployment"
+	UserType                NuvlaResourceType = "user"
+	NuvlaEdgeType           NuvlaResourceType = "nuvlaedge"
+	NuvlaBoxType            NuvlaResourceType = "nuvlabox"
+	JobType                 NuvlaResourceType = "job"
+	DeploymentParameterType NuvlaResourceType = "deployment-parameter"
+)
