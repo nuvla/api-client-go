@@ -10,6 +10,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/cookiejar"
+	"net/url"
 	"time"
 )
 
@@ -135,6 +136,46 @@ func compressPayload(payload []byte) *bytes.Buffer {
 	return &buf
 }
 
+func encodeBody(request *http.Request, reqInput *types.RequestOpts, compress bool) error {
+	if reqInput.JsonData == nil && reqInput.Data == nil {
+		log.Info("No payload provided...")
+		return nil
+	}
+
+	if reqInput.JsonData != nil && reqInput.Data != nil {
+		log.Warn("Both Data and JsonData provided, this could lead to unexpected behavior. Using JsonData")
+	}
+
+	if reqInput.JsonData != nil {
+		log.Info("Encoding json payload")
+		jsonPayload, err := json.Marshal(reqInput.JsonData)
+		if err != nil {
+			log.Errorf("Error marshalling json payload: %s", err)
+			return err
+		}
+
+		var buffer *bytes.Buffer
+		if compress {
+			buffer = compressPayload(jsonPayload)
+		} else {
+			buffer = bytes.NewBuffer(jsonPayload)
+		}
+		request.Header.Set("Content-Type", "application/json")
+		request.Body = io.NopCloser(buffer)
+	}
+
+	if reqInput.Data != nil {
+		log.Debug("Encoding data payload")
+		data := url.Values{}
+		for k, v := range reqInput.Data {
+			data.Set(k, v)
+		}
+		request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		request.Body = io.NopCloser(bytes.NewBufferString(data.Encode()))
+	}
+	return nil
+}
+
 func (s *NuvlaSession) Request(reqInput *types.RequestOpts) (*http.Response, error) {
 	// Build endpoint
 	log.Infof("Requesting %s", reqInput.Endpoint)
@@ -144,22 +185,12 @@ func (s *NuvlaSession) Request(reqInput *types.RequestOpts) (*http.Response, err
 		log.Errorf("Error creating request: %s", err)
 		return nil, err
 	}
-	// Add payload if needed
-	if reqInput.JsonData != nil {
-		log.Debug("Parsing payload data")
-		jsonPayload, err := json.Marshal(reqInput.JsonData)
-		if err != nil {
-			log.Errorf("Error marshalling payload: %s", err)
-			return nil, err
-		}
-		var buffer *bytes.Buffer
-		if s.compress {
-			buffer = compressPayload(jsonPayload)
-		} else {
-			buffer = bytes.NewBuffer(jsonPayload)
-		}
 
-		r.Body = io.NopCloser(buffer)
+	// Encode body asserting from json or data encoded as URL
+	err = encodeBody(r, reqInput, s.compress)
+	if err != nil {
+		log.Errorf("Error encoding body: %s", err)
+		return nil, err
 	}
 
 	for k, v := range reqInput.Headers {
