@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.1](https://github.com/nuvla/api-client-go/compare/v0.7.0...v0.7.1) (2024-05-28)
+
+
+### Minor Changes
+
+* Add session refresh from deployment credentials to deployment client ([ccd3fca](https://github.com/nuvla/api-client-go/commit/ccd3fca2ff3cb1e8a9215d917e40bd00afb4f222))
+
 ## [0.7.0](https://github.com/nuvla/api-client-go/compare/v0.6.0...v0.7.0) (2024-05-28)
 
 
