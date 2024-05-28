@@ -5,12 +5,14 @@ import (
 	"compress/gzip"
 	"crypto/tls"
 	"encoding/json"
+	"fmt"
 	"github.com/nuvla/api-client-go/types"
 	log "github.com/sirupsen/logrus"
 	"io"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
+	"strconv"
 	"time"
 )
 
@@ -167,8 +169,20 @@ func encodeBody(request *http.Request, reqInput *types.RequestOpts, compress boo
 	if reqInput.Data != nil {
 		log.Debug("Encoding data payload")
 		data := url.Values{}
-		for k, v := range reqInput.Data {
-			data.Set(k, v)
+		for k, value := range reqInput.Data {
+			switch v := value.(type) {
+			case []string:
+				for _, s := range v {
+					data.Add(k, s)
+				}
+			case string:
+				data.Add(k, v)
+			case int:
+				data.Add(k, strconv.Itoa(v))
+			default:
+				log.Warnf("Unknown type %T for key %s", v, k)
+				data.Add(k, fmt.Sprintf("%v", v))
+			}
 		}
 		request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 		request.Body = io.NopCloser(bytes.NewBufferString(data.Encode()))

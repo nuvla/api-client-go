@@ -5,6 +5,7 @@ import (
 	"fmt"
 	nuvla "github.com/nuvla/api-client-go"
 	"github.com/nuvla/api-client-go/clients/resources"
+	"github.com/nuvla/api-client-go/common"
 	"github.com/nuvla/api-client-go/types"
 	log "github.com/sirupsen/logrus"
 	"io"
@@ -26,12 +27,12 @@ type NuvlaEdgeSessionFreeze struct {
 }
 
 func (sf *NuvlaEdgeSessionFreeze) Load(file string) error {
-	return nuvla.ReadJSONFromFile(file, sf)
+	return common.ReadJSONFromFile(file, sf)
 }
 
 func (sf *NuvlaEdgeSessionFreeze) Save(file string) error {
 	// Write b to file
-	err := nuvla.WriteIndentedJSONToFile(sf, file)
+	err := common.WriteIndentedJSONToFile(sf, file)
 	if err != nil {
 		log.Errorf("Error saving NuvlaEdgeSessionFreeze: %s", err)
 		return err

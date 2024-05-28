@@ -1,10 +1,12 @@
-package api_client_go
+package common
 
 import (
 	"encoding/json"
 	log "github.com/sirupsen/logrus"
 	"io"
 	"os"
+	"reflect"
+	"strconv"
 )
 
 func FileExists(filePath string) bool {
@@ -70,4 +72,26 @@ func ReadJSONFromFile(path string, data interface{}) error {
 		return err
 	}
 	return json.Unmarshal(content, data)
+}
+
+// GetCleanMapFromStruct returns a map with only the non-nil fields
+// warning: this function will cause problems if trying to use default values in the struct
+func GetCleanMapFromStruct(st interface{}) map[string]interface{} {
+	m := make(map[string]interface{})
+	val := reflect.ValueOf(st).Elem()
+
+	for i := 0; i < val.NumField(); i++ {
+		valueField := val.Field(i)
+		typeField := val.Type().Field(i)
+		jsonTag := typeField.Tag.Get("json")
+
+		if !valueField.IsZero() {
+			if typeField.Name == "First" || typeField.Name == "Last" {
+				m[jsonTag] = strconv.Itoa(int(valueField.Int()))
+			} else {
+				m[jsonTag] = valueField.String()
+			}
+		}
+	}
+	return m
 }

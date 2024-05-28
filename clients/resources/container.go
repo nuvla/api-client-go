@@ -1,5 +1,7 @@
 package resources
 
+import "fmt"
+
 type ContainerResource struct {
 }
 
@@ -38,4 +40,8 @@ type EnvironmentVariable struct {
 	Description string `json:"description"`
 	Required    bool   `json:"required"`
 	Value       string `json:"value"`
+}
+
+func (ev *EnvironmentVariable) GetAsString() string {
+	return fmt.Sprintf("%s=%s", ev.Name, ev.Value)
 }
