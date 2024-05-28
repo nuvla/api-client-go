@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.7.0](https://github.com/nuvla/api-client-go/compare/v0.6.0...v0.7.0) (2024-05-28)
+
+
+### Features
+
+* Add deployment parameter handler to deployment client ([#27](https://github.com/nuvla/api-client-go/issues/27)) ([d89804a](https://github.com/nuvla/api-client-go/commit/d89804a77e3a7615b22de431725c6b8da1f22eb6))
+
+
+### Documentation
+
+* Update NuvlaClient operations available ([24802b2](https://github.com/nuvla/api-client-go/commit/24802b2b01b391a001255820e6c94bd57ffe4127))
+
 ## [0.6.0](https://github.com/nuvla/api-client-go/compare/v0.5.2...v0.6.0) (2024-05-17)
 
 
