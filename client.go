@@ -31,12 +31,14 @@ func NewClientOpts(credentials types.LogInParams, opts ...SessionOptFunc) *Clien
 type NuvlaClient struct {
 	// Session params
 	*NuvlaSession
+	SessionOpts SessionOptions
 	credentials types.LogInParams
 }
 
 func NewNuvlaClient(cred types.LogInParams, opts *SessionOptions) *NuvlaClient {
 	nc := &NuvlaClient{
 		NuvlaSession: NewNuvlaSession(opts),
+		SessionOpts:  *opts,
 		credentials:  cred,
 	}
 
@@ -227,6 +229,7 @@ func (nc *NuvlaClient) Search(resourceType string, opts *SearchOptions) (*resour
 		Data:     common.GetCleanMapFromStruct(opts),
 	}
 	resp, err := nc.cimiRequest(r)
+
 	if err != nil {
 		log.Errorf("Error executing GET request: %s", err)
 		return nil, err

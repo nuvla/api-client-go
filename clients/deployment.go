@@ -26,6 +26,32 @@ func NewNuvlaDeploymentClient(deploymentId string, client *nuvla.NuvlaClient) *N
 	}
 }
 
+// UpdateSessionFromDeploymentCredentials after retrieving
+func (dc *NuvlaDeploymentClient) UpdateSessionFromDeploymentCredentials() error {
+	if dc.deploymentResource == nil {
+		if err := dc.UpdateResource(); err != nil {
+			log.Errorf("Error updating Deployment resource %s", dc.deploymentId)
+			return err
+		}
+	}
+
+	if dc.deploymentResource.ApiCredentials.ApiKey == "" || dc.deploymentResource.ApiCredentials.ApiSecret == "" {
+		log.Errorf("Deployment %s does not have API credentials", dc.deploymentId)
+		return fmt.Errorf("deployment %s does not have API credentials", dc.deploymentId)
+	}
+	customOpts := dc.NuvlaClient.SessionOpts
+	customOpts.CookieFile = ""
+	customOpts.PersistCookie = false
+
+	dc.NuvlaClient = nuvla.NewNuvlaClient(nil, &customOpts)
+	err := dc.LoginApiKeys(dc.deploymentResource.ApiCredentials.ApiKey, dc.deploymentResource.ApiCredentials.ApiSecret)
+	if err != nil {
+		log.Errorf("Error logging in with deployment credentials: %s", err)
+		return err
+	}
+	return nil
+}
+
 func (dc *NuvlaDeploymentClient) SetDeploymentState() error {
 	return nil
 }
@@ -118,7 +144,11 @@ func (dc *NuvlaDeploymentClient) searchParameter(parentId, paramName, nodeId str
 	}
 	parameters, err := dc.Search(string(resources.DeploymentParameterType), opts)
 	// TODO: See if err != nil should be consider as resource not found error
-	if parameters.Count <= 0 {
+	if err != nil {
+		log.Debugf("Error searching parameter %s: %s", paramName, err)
+	}
+	if parameters == nil || parameters.Count <= 0 {
+		log.Warnf("Parameter %s not found", paramName)
 		return nil, types.NewResourceNotFoundError(resources.DeploymentParameterType, "")
 	}
 
@@ -189,17 +219,20 @@ func (dc *NuvlaDeploymentClient) UpdateParameter(userId string, opts ...resource
 	for _, fn := range opts {
 		fn(paramOpts)
 	}
+
 	// Try to get the parameter to retrieve the ID, if it does not exist, create it
 	paramData, err := dc.searchParameter(paramOpts.Parent, paramOpts.Name, paramOpts.NodeId)
+
 	if err != nil {
 		var resourceNotFoundError *types.ResourceNotFoundError
 		if errors.As(err, &resourceNotFoundError) {
+			log.Debugf("Parameter %s not found, creating it...", paramOpts.Name)
 			return dc.CreateParameter(userId, opts...)
 		} else {
 			log.Errorf("Error getting parameter %s: %s", paramOpts.Name, err)
 		}
 	}
-	log.Infof("Updating parameter %s...", paramOpts.Name)
+	log.Debugf("Parameter %s already exists, updating it", paramOpts.Name)
 	_, err = dc.Edit(paramData.Id, common.GetCleanMapFromStruct(paramOpts), nil)
 	if err != nil {
 		log.Errorf("Error updating parameter %s: %s", paramOpts.Name, err)

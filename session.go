@@ -85,14 +85,13 @@ func (s *NuvlaSession) login(loginParams types.LogInParams) error {
 	p["template"] = loginParams.GetParams()
 
 	// Send request
-	resp, err := s.Request(&types.RequestOpts{
+	log.Debug("Sending login request...")
+	_, err := s.Request(&types.RequestOpts{
 		Method:   "POST",
 		Endpoint: s.endpoint + types.SessionEndpoint,
 		JsonData: p,
 		Headers:  h,
 	})
-	log.Infof("Login response: %v", resp)
-
 	return err
 }
 
@@ -140,7 +139,6 @@ func compressPayload(payload []byte) *bytes.Buffer {
 
 func encodeBody(request *http.Request, reqInput *types.RequestOpts, compress bool) error {
 	if reqInput.JsonData == nil && reqInput.Data == nil {
-		log.Info("No payload provided...")
 		return nil
 	}
 
@@ -149,7 +147,6 @@ func encodeBody(request *http.Request, reqInput *types.RequestOpts, compress boo
 	}
 
 	if reqInput.JsonData != nil {
-		log.Info("Encoding json payload")
 		jsonPayload, err := json.Marshal(reqInput.JsonData)
 		if err != nil {
 			log.Errorf("Error marshalling json payload: %s", err)
@@ -192,7 +189,7 @@ func encodeBody(request *http.Request, reqInput *types.RequestOpts, compress boo
 
 func (s *NuvlaSession) Request(reqInput *types.RequestOpts) (*http.Response, error) {
 	// Build endpoint
-	log.Infof("Requesting %s", reqInput.Endpoint)
+	log.Debugf("Sending [%s] request to endpoint: %s", reqInput.Method, reqInput.Endpoint)
 
 	r, err := http.NewRequest(reqInput.Method, reqInput.Endpoint, nil)
 	if err != nil {
