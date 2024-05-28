@@ -178,7 +178,7 @@ func (dc *NuvlaDeploymentClient) CreateParameter(userId string, opts ...resource
 	var m map[string]interface{}
 	jsOpts, _ := json.Marshal(paramOpts)
 	_ = json.Unmarshal(jsOpts, &m)
-	// ATM we don't use the ID of the parameter
+	//ATM we don't use the ID of the parameter
 	_, err := dc.Add(resources.DeploymentParameterType, m)
 	return err
 }

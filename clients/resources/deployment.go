@@ -26,9 +26,9 @@ type DeploymentResource struct {
 
 type DeploymentParameterResource struct {
 	CommonAttributesResource
-	NodeId string                 `json:"node-id"`
-	Value  string                 `json:"value"`
-	Acl    map[string]interface{} `json:"acl"`
+	NodeId string                 `json:"node-id,omitempty"`
+	Value  string                 `json:"value,omitempty"`
+	Acl    map[string]interface{} `json:"acl,omitempty"`
 	// TODO: ATM, acl is only used here in the client but it belongs to CommonAttributesResource
 }
 
