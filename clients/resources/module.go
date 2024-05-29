@@ -40,7 +40,7 @@ type ModuleApplicationResource struct {
 	Commit                string                  `json:"commit"`
 	Urls                  [][]string              `json:"urls"`
 	OutputParameters      []OutputParameter       `json:"output-parameters"`
-	EnvironmentVariables  []EnvironmentVariable   `json:"environment-variables"`
+	EnvironmentVariables  []EnvironmentVariable   `json:"environmental-variables"`
 	PrivateRegistries     []string                `json:"private-registries"`
 	RegistriesCredentials []string                `json:"registries-credentials"`
 	Files                 []ModuleApplicationFile `json:"files"`
