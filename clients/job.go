@@ -49,8 +49,6 @@ func (jc *NuvlaJobClient) UpdateResource() error {
 	}
 
 	err = json.Unmarshal(b, jc.jobResource)
-	s, _ := json.MarshalIndent(res.Data, "", "  ")
-	log.Infof("JobResource: %s", string(s))
 	if err != nil {
 		log.Error("Error unmarshalling response into DeploymentResource structure")
 		return err
