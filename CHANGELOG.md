@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.3](https://github.com/nuvla/api-client-go/compare/v0.7.2...v0.7.3) (2024-06-04)
+
+
+### Minor Changes
+
+* Add Getter for APK key-secret on job client ([#30](https://github.com/nuvla/api-client-go/issues/30)) ([347e75b](https://github.com/nuvla/api-client-go/commit/347e75b99144fea868e3ac6ec7eb2c461d4510c7))
+
 ## [0.7.2](https://github.com/nuvla/api-client-go/compare/v0.7.1...v0.7.2) (2024-05-29)
 
 
