@@ -11,40 +11,23 @@ import (
 	"net/http"
 )
 
-type ClientOpts struct {
-	*SessionOptions
-
-	Credentials types.LogInParams
-}
-
-func NewClientOpts(credentials types.LogInParams, opts ...SessionOptFunc) *ClientOpts {
-	sessionOpts := DefaultSessionOpts()
-	for _, fn := range opts {
-		fn(sessionOpts)
-	}
-	return &ClientOpts{
-		SessionOptions: sessionOpts,
-		Credentials:    credentials,
-	}
-}
-
 type NuvlaClient struct {
 	// Session params
 	*NuvlaSession
 	SessionOpts SessionOptions
-	credentials types.LogInParams
+	Credentials types.LogInParams
 }
 
 func NewNuvlaClient(cred types.LogInParams, opts *SessionOptions) *NuvlaClient {
 	nc := &NuvlaClient{
 		NuvlaSession: NewNuvlaSession(opts),
 		SessionOpts:  *opts,
-		credentials:  cred,
+		Credentials:  cred,
 	}
 
-	if nc.credentials != nil && nc.reauthenticate {
+	if nc.Credentials != nil && nc.reauthenticate {
 		log.Debug("Logging in with api keys...")
-		if err := nc.login(nc.credentials); err != nil {
+		if err := nc.login(nc.Credentials); err != nil {
 			log.Errorf("Error logging in with api keys: %s.", err)
 		}
 
@@ -62,20 +45,26 @@ func NewNuvlaClientFromOpts(cred types.LogInParams, opts ...SessionOptFunc) *Nuv
 }
 
 func (nc *NuvlaClient) LoginApiKeys(key string, secret string) error {
-	err := nc.login(types.NewApiKeyLogInParams(key, secret))
+	logInParams := types.NewApiKeyLogInParams(key, secret)
+	err := nc.login(logInParams)
 	if err != nil {
 		log.Errorf("Error logging in with api keys: %s", err)
 		return err
 	}
+	// Save login params if successful and Credentials are different from the current ones
+	nc.Credentials = logInParams
 	return nil
 }
 
 func (nc *NuvlaClient) LoginUser(username string, password string) error {
-	err := nc.login(types.NewUserLogInParams(username, password))
+	logInParams := types.NewUserLogInParams(username, password)
+	err := nc.login(logInParams)
 	if err != nil {
-		log.Errorf("Error logging in with user credentials: %s", err)
+		log.Errorf("Error logging in with user Credentials: %s", err)
 		return err
 	}
+	// Save login params if successful and Credentials are different from the current ones
+	nc.Credentials = logInParams
 	return nil
 }
 

@@ -2,6 +2,7 @@ package clients
 
 import (
 	"encoding/json"
+	"errors"
 	nuvla "github.com/nuvla/api-client-go"
 	"github.com/nuvla/api-client-go/clients/resources"
 	"github.com/nuvla/api-client-go/types"
@@ -48,8 +49,6 @@ func (jc *NuvlaJobClient) UpdateResource() error {
 	}
 
 	err = json.Unmarshal(b, jc.jobResource)
-	s, _ := json.MarshalIndent(res.Data, "", "  ")
-	log.Infof("JobResource: %s", string(s))
 	if err != nil {
 		log.Error("Error unmarshalling response into DeploymentResource structure")
 		return err
@@ -157,6 +156,19 @@ func (jc *NuvlaJobClient) SetSuccessState() {
 	}
 	PrintResponse(res)
 	log.Debugf("Setting success state... Success.")
+}
+
+func (jc *NuvlaJobClient) GetCredentials() (string, string, error) {
+	creds := jc.Credentials.GetParams()
+	k, ok := creds["key"]
+	if !ok {
+		return "", "", errors.New("key not found in credentials")
+	}
+	s, ok := creds["secret"]
+	if !ok {
+		return "", "", errors.New("secret not found in credentials")
+	}
+	return k, s, nil
 }
 
 func PrintResponse(res *http.Response) {
