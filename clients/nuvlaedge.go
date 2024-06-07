@@ -229,8 +229,8 @@ func (ne *NuvlaEdgeClient) GetResourceMap() (map[string]interface{}, error) {
 	return mapRes, nil
 }
 
-func (ne *NuvlaEdgeClient) UpdateResource() error {
-	res, err := ne.Get(ne.NuvlaEdgeId.Id, nil)
+func (ne *NuvlaEdgeClient) UpdateResourceSelect(selects []string) error {
+	res, err := ne.Get(ne.NuvlaEdgeId.Id, selects)
 	if err != nil {
 		log.Infof("Error updating NuvlaEdge resource %s", ne.NuvlaEdgeId)
 		return nil
@@ -253,6 +253,17 @@ func (ne *NuvlaEdgeClient) UpdateResource() error {
 	}
 	log.Infof("Successfully updated NuvlaEdge resource")
 	return nil
+}
+
+func (ne *NuvlaEdgeClient) UpdateResource() error {
+	return ne.UpdateResourceSelect(nil)
+}
+
+func (ne *NuvlaEdgeClient) GetNuvlaEdgeResource() resources.NuvlaEdgeResource {
+	if ne.nuvlaEdgeResource == nil {
+		ne.nuvlaEdgeResource = &resources.NuvlaEdgeResource{}
+	}
+	return *ne.nuvlaEdgeResource
 }
 
 func (ne *NuvlaEdgeClient) GetNuvlaClient() *nuvla.NuvlaClient {
