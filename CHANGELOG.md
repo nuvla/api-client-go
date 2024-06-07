@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.4](https://github.com/nuvla/api-client-go/compare/v0.7.3...v0.7.4) (2024-06-07)
+
+
+### Minor Changes
+
+* Add Selective resource update and resource getter to nuvlaedge client ([bde055f](https://github.com/nuvla/api-client-go/commit/bde055feb6eeb934a574804c950a597a6f97258f))
+
 ## [0.7.3](https://github.com/nuvla/api-client-go/compare/v0.7.2...v0.7.3) (2024-06-04)
 
 
