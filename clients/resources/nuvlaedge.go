@@ -23,13 +23,13 @@ type NuvlaEdgeResource struct {
 	Owner             string         `json:"owner"`
 
 	// Optional
-	Location              []string `json:"location"`
-	VPNServerID           string   `json:"vpn-server-id"`
-	SSHKeys               []string `json:"ssh-keys"`
-	Capabilities          []string `json:"capabilities"`
-	Online                bool     `json:"online"`
-	InferredLocation      string   `json:"inferred-location"`
-	NuvlaBoxEngineVersion string   `json:"nuvlabox-engine-version"`
+	Location              []string  `json:"location"`
+	VPNServerID           string    `json:"vpn-server-id"`
+	SSHKeys               []string  `json:"ssh-keys"`
+	Capabilities          []string  `json:"capabilities"`
+	Online                bool      `json:"online"`
+	InferredLocation      []float32 `json:"inferred-location"`
+	NuvlaBoxEngineVersion string    `json:"nuvlabox-engine-version"`
 
 	NuvlaBoxStatus             string `json:"nuvlabox-status"`
 	InfrastructureServiceGroup string `json:"infrastructure-service-group"`
