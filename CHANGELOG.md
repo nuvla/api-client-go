@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.5](https://github.com/nuvla/api-client-go/compare/v0.7.4...v0.7.5) (2024-06-11)
+
+
+### Bug Fixes
+
+* Fix Inferred location type in NuvlaEdgeResource ([764823d](https://github.com/nuvla/api-client-go/commit/764823d7c4e4d3a293b7f7832dd5bb8ef6b3f80d))
+
 ## [0.7.4](https://github.com/nuvla/api-client-go/compare/v0.7.3...v0.7.4) (2024-06-07)
 
 
