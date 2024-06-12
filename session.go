@@ -13,6 +13,7 @@ import (
 	"net/http/cookiejar"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -32,11 +33,20 @@ type NuvlaSession struct {
 	cookies *NuvlaCookies
 }
 
+func sanitiseEndpoint(endpoint string) string {
+	if strings.HasPrefix(endpoint, "http://") || strings.HasPrefix(endpoint, "https://") {
+		return endpoint
+	} else {
+		log.Infof("Endpoint %s does not have a protocol. Assuming https", endpoint)
+		return "https://" + endpoint
+	}
+}
+
 func NewNuvlaSession(sessionAttrs *SessionOptions) *NuvlaSession {
 
 	log.Infof("Creating new Nuvla session for endpoint %s", sessionAttrs.Endpoint)
 	s := &NuvlaSession{
-		endpoint:       sessionAttrs.Endpoint,
+		endpoint:       sanitiseEndpoint(sessionAttrs.Endpoint),
 		reauthenticate: sessionAttrs.ReAuthenticate,
 		persistCookie:  sessionAttrs.PersistCookie,
 		authnHeader:    sessionAttrs.AuthHeader,
