@@ -23,7 +23,7 @@ type NuvlaEdgeResource struct {
 	Owner             string         `json:"owner"`
 
 	// Optional
-	Location              []string  `json:"location"`
+	Location              []float32 `json:"location"`
 	VPNServerID           string    `json:"vpn-server-id"`
 	SSHKeys               []string  `json:"ssh-keys"`
 	Capabilities          []string  `json:"capabilities"`
