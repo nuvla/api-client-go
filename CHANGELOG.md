@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.7.6](https://github.com/nuvla/api-client-go/compare/v0.7.5...v0.7.6) (2024-06-12)
+
+
+### Bug Fixes
+
+* Fix nuvlaedge resource location field typing bug ([e2017fe](https://github.com/nuvla/api-client-go/commit/e2017fe822f61350554ff87fdd3b25e42eab3f28))
+
+
+### Minor Changes
+
+* Add endpoint sanitise to endpoint in session.go ([984abc1](https://github.com/nuvla/api-client-go/commit/984abc103780fa729ccda2a3a1f048bb18e9d471))
+
 ## [0.7.5](https://github.com/nuvla/api-client-go/compare/v0.7.4...v0.7.5) (2024-06-11)
 
 
