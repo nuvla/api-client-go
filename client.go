@@ -144,6 +144,22 @@ func (nc *NuvlaClient) Post(endpoint string, data map[string]interface{}) (*http
 	return resp, nil
 }
 
+func (nc *NuvlaClient) BulkPost(endpoint string, data []map[string]interface{}) (*http.Response, error) {
+	r := &types.RequestOpts{
+		Method:   "POST",
+		JsonData: data,
+		Endpoint: nc.buildUriEndPoint(endpoint),
+	}
+
+	resp, err := nc.cimiRequest(r)
+	if err != nil {
+		log.Errorf("Error executing POST request: %s", err)
+		return nil, err
+	}
+
+	return resp, nil
+}
+
 func (nc *NuvlaClient) Put(uri string, data map[string]interface{}, selectFields []string) (*http.Response, error) {
 	r := &types.RequestOpts{
 		Method:   "PUT",
@@ -177,6 +193,10 @@ func (nc *NuvlaClient) delete(deleteEndpoint string) (*http.Response, error) {
 
 func (nc *NuvlaClient) Operation(resourceId, operation string, data map[string]interface{}) (*http.Response, error) {
 	return nc.Post(nc.buildOperationUriEndPoint(resourceId, operation), data)
+}
+
+func (nc *NuvlaClient) BulkOperation(resourceId string, operation string, data []map[string]interface{}, toSelect []string) (*http.Response, error) {
+	return nc.BulkPost(nc.buildOperationUriEndPoint(resourceId, operation), data)
 }
 
 func (nc *NuvlaClient) Edit(resourceId string, data map[string]interface{}, toSelect []string) (*http.Response, error) {
