@@ -157,6 +157,10 @@ func encodeBody(request *http.Request, reqInput *types.RequestOpts, compress boo
 		log.Warn("Both Data and JsonData provided, this could lead to unexpected behavior. Using JsonData")
 	}
 
+	if strings.Contains(reqInput.Method, "bulk") {
+		request.Header.Set("bulk", "true")
+	}
+
 	if reqInput.JsonData != nil {
 		switch reqInput.JsonData.(type) {
 		case map[string]interface{}:
