@@ -25,6 +25,7 @@ type NuvlaSession struct {
 	loginParams    map[string]string
 	authnHeader    string
 	compress       bool
+	bulk           bool
 	debug          bool
 
 	session *http.Client

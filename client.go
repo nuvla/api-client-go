@@ -94,6 +94,9 @@ func (nc *NuvlaClient) cimiRequest(reqInput *types.RequestOpts) (*http.Response,
 	if nc.compress {
 		reqInput.Headers["Accept-Encoding"] = "gzip"
 	}
+	if nc.bulk {
+		reqInput.Headers["bulk"] = "true"
+	}
 
 	r, _ := nc.Request(reqInput)
 
