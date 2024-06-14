@@ -7,6 +7,7 @@ type RequestOpts struct {
 	JsonData interface{}
 	Params   *RequestParams
 	Headers  map[string]string
+	Bulk     bool
 }
 
 type RequestParams struct {

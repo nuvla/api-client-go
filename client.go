@@ -94,7 +94,7 @@ func (nc *NuvlaClient) cimiRequest(reqInput *types.RequestOpts) (*http.Response,
 	if nc.compress {
 		reqInput.Headers["Accept-Encoding"] = "gzip"
 	}
-	if nc.bulk {
+	if reqInput.Bulk {
 		reqInput.Headers["bulk"] = "true"
 	}
 
@@ -152,6 +152,7 @@ func (nc *NuvlaClient) BulkPost(endpoint string, data []map[string]interface{}) 
 		Method:   "POST",
 		JsonData: data,
 		Endpoint: nc.buildUriEndPoint(endpoint),
+		Bulk:     true,
 	}
 
 	resp, err := nc.cimiRequest(r)
