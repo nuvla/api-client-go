@@ -25,7 +25,6 @@ type NuvlaSession struct {
 	loginParams    map[string]string
 	authnHeader    string
 	compress       bool
-	bulk           bool
 	debug          bool
 
 	session *http.Client
@@ -155,10 +154,6 @@ func encodeBody(request *http.Request, reqInput *types.RequestOpts, compress boo
 
 	if reqInput.JsonData != nil && reqInput.Data != nil {
 		log.Warn("Both Data and JsonData provided, this could lead to unexpected behavior. Using JsonData")
-	}
-
-	if strings.Contains(reqInput.Method, "bulk") {
-		request.Header.Set("bulk", "true")
 	}
 
 	if reqInput.JsonData != nil {
