@@ -157,6 +157,15 @@ func encodeBody(request *http.Request, reqInput *types.RequestOpts, compress boo
 	}
 
 	if reqInput.JsonData != nil {
+		switch reqInput.JsonData.(type) {
+		case map[string]interface{}:
+			log.Debug("Encoding json payload")
+		case []map[string]interface{}:
+			log.Debug("Encoding json array payload")
+		default:
+			log.Warnf("Unknown type %T for json payload", reqInput.JsonData)
+			return nil
+		}
 		jsonPayload, err := json.Marshal(reqInput.JsonData)
 		if err != nil {
 			log.Errorf("Error marshalling json payload: %s", err)
