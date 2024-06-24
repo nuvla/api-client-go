@@ -103,11 +103,11 @@ func extractCredentialsFromActivateResponse(resp *http.Response) (*types.ApiKeyL
 
 	// Read response body
 	body, err := io.ReadAll(resp.Body)
+	defer resp.Body.Close()
 	if err != nil {
 		log.Errorf("Error reading response body: %s", err)
 		return nil, err
 	}
-	defer resp.Body.Close()
 
 	creds := &types.ApiKeyLogInParams{}
 	err = json.Unmarshal(body, creds)
@@ -159,11 +159,11 @@ func (ne *NuvlaEdgeClient) Commission(data map[string]interface{}) error {
 		return err
 	}
 	body, err := io.ReadAll(res.Body)
+	defer res.Body.Close()
 	if err != nil {
 		log.Errorf("Error reading response body: %s", err)
 		return err
 	}
-	defer res.Body.Close()
 
 	log.Infof("Commissioning code response: %v", res.StatusCode)
 	log.Infof("Commissioning response: %s", string(body))

@@ -16,11 +16,11 @@ type NuvlaResource struct {
 func NewResourceFromResponse(resp *http.Response) *NuvlaResource {
 	// Read response body
 	body, err := io.ReadAll(resp.Body)
+	defer resp.Body.Close()
 	if err != nil {
 		log.Errorf("Error reading response body: %s", err)
 		return nil
 	}
-	defer resp.Body.Close()
 
 	// Unmarshal response body into NuvlaResource
 	var data map[string]interface{}

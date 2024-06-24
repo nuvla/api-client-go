@@ -20,11 +20,11 @@ func NewCollectionFromResponse(response *http.Response) (*NuvlaResourceCollectio
 
 	// Unmarshal response body into NuvlaResourceCollection
 	body, err := io.ReadAll(response.Body)
+	defer response.Body.Close()
 	if err != nil {
 		log.Errorf("Error reading response body: %s", err)
 		return nil, err
 	}
-	defer response.Body.Close()
 
 	collection := &NuvlaResourceCollection{}
 	err = json.Unmarshal(body, collection)

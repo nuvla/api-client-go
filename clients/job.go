@@ -175,12 +175,11 @@ func PrintResponse(res *http.Response) {
 
 	log.Infof("Processing response with jobs...")
 	body, err := io.ReadAll(res.Body)
+	defer res.Body.Close()
 	if err != nil {
 		log.Errorf("Error reading response body: %s", err)
 		return
 	}
-
-	defer res.Body.Close()
 
 	var sample struct {
 		Message string   `json:"message"`
