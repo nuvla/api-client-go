@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.7](https://github.com/nuvla/api-client-go/compare/v0.7.6...v0.7.7) (2024-06-25)
+
+
+### Bug Fixes
+
+* Fix non closed http.request bodies ([#36](https://github.com/nuvla/api-client-go/issues/36)) ([7f8d49f](https://github.com/nuvla/api-client-go/commit/7f8d49f4cd3abf56651166c54d6fa2f77d519851))
+
 ## [0.7.6](https://github.com/nuvla/api-client-go/compare/v0.7.5...v0.7.6) (2024-06-12)
 
 
