@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	log "github.com/sirupsen/logrus"
 	"io"
+	"net/http"
 	"os"
 	"reflect"
 	"strconv"
@@ -94,4 +95,30 @@ func GetCleanMapFromStruct(st interface{}) map[string]interface{} {
 		}
 	}
 	return m
+}
+
+func CloseGenericResponseWithLog(resp *http.Response, respErr error) {
+	// Nothing to close
+	if resp == nil {
+		return
+	}
+
+	// Log if err is not nil
+	if respErr != nil {
+		log.Warnf("Error present together with response: %s", respErr)
+	}
+
+	method := ""
+	endpoint := ""
+
+	if resp.Request != nil {
+		method = resp.Request.Method
+		endpoint = resp.Request.URL.String()
+	}
+
+	log.Infof("Closing response [%s]-%s", method, endpoint)
+	err := resp.Body.Close()
+	if err != nil {
+		log.Warnf("Error closing responses %s body: %s", endpoint, err)
+	}
 }

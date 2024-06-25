@@ -69,6 +69,8 @@ func (nc *NuvlaClient) LoginUser(username string, password string) error {
 }
 
 func (nc *NuvlaClient) Logout() error {
+	// Close connections and logout
+
 	return nc.logout()
 }
 
@@ -265,6 +267,7 @@ func (nc *NuvlaClient) Add(resourceType resources.NuvlaResourceType, data map[st
 	var resData map[string]interface{}
 
 	bodyBytes, err := io.ReadAll(res.Body)
+	defer res.Body.Close()
 	if err != nil {
 		log.Errorf("Error reading response body, cannot extract ID: %s", err)
 		return nil, err
