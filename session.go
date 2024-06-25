@@ -147,6 +147,20 @@ func compressPayload(payload []byte) *bytes.Buffer {
 	return &buf
 }
 
+// bodyTypeCompatible checks if the body content is compatible with the body type. Currently supported types are:
+// - map[string]interface{}
+// - []map[string]interface{}
+func bodyTypeCompatible(bodyContent interface{}) bool {
+	switch bodyContent.(type) {
+	case map[string]interface{}:
+		return true
+	case []map[string]interface{}:
+		return true
+	default:
+		return false
+	}
+}
+
 func encodeBody(request *http.Request, reqInput *types.RequestOpts, compress bool) error {
 	if reqInput.JsonData == nil && reqInput.Data == nil {
 		return nil
@@ -157,15 +171,11 @@ func encodeBody(request *http.Request, reqInput *types.RequestOpts, compress boo
 	}
 
 	if reqInput.JsonData != nil {
-		switch reqInput.JsonData.(type) {
-		case map[string]interface{}:
-			log.Debug("Encoding json payload")
-		case []map[string]interface{}:
-			log.Debug("Encoding json array payload")
-		default:
+		if !bodyTypeCompatible(reqInput.JsonData) {
 			log.Warnf("Unknown type %T for json payload", reqInput.JsonData)
 			return nil
 		}
+
 		jsonPayload, err := json.Marshal(reqInput.JsonData)
 		if err != nil {
 			log.Errorf("Error marshalling json payload: %s", err)
