@@ -241,9 +241,9 @@ func (s *NuvlaSession) Request(reqInput *types.RequestOpts) (*http.Response, err
 
 func (s *NuvlaSession) logout() error {
 	log.Infof("Logging out from %s", s.endpoint)
-	// TODO: Implement me
-	// Delete current session
-	// Remove cookie
+	// TODO: Remove cookies if present
+	// For the moment, lets release unused connections...
+	s.session.CloseIdleConnections()
 	return nil
 }
 

@@ -69,6 +69,8 @@ func (nc *NuvlaClient) LoginUser(username string, password string) error {
 }
 
 func (nc *NuvlaClient) Logout() error {
+	// Close connections and logout
+
 	return nc.logout()
 }
 

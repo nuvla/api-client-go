@@ -233,11 +233,13 @@ func (dc *NuvlaDeploymentClient) UpdateParameter(userId string, opts ...resource
 		}
 	}
 	log.Debugf("Parameter %s already exists, updating it", paramOpts.Name)
-	_, err = dc.Edit(paramData.Id, common.GetCleanMapFromStruct(paramOpts), nil)
+	resp, err := dc.Edit(paramData.Id, common.GetCleanMapFromStruct(paramOpts), nil)
+	common.CloseGenericResponseWithLog(resp, err)
 	if err != nil {
 		log.Errorf("Error updating parameter %s: %s", paramOpts.Name, err)
 		return err
 	}
+
 	log.Debugf("Parameter %s updated", paramOpts.Name)
 	return nil
 }
