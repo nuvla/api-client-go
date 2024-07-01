@@ -116,7 +116,7 @@ func CloseGenericResponseWithLog(resp *http.Response, respErr error) {
 		endpoint = resp.Request.URL.String()
 	}
 
-	log.Infof("Closing response [%s]-%s", method, endpoint)
+	log.Debugf("Closing response [%s]-%s", method, endpoint)
 	err := resp.Body.Close()
 	if err != nil {
 		log.Warnf("Error closing responses %s body: %s", endpoint, err)

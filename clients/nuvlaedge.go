@@ -108,9 +108,22 @@ func extractCredentialsFromActivateResponse(resp *http.Response) (*types.ApiKeyL
 		log.Errorf("Error reading response body: %s", err)
 		return nil, err
 	}
-
+	log.Infof("Response body from activation: %s", string(body))
+	c := make(map[string]string)
+	err = json.Unmarshal(body, &c)
 	creds := &types.ApiKeyLogInParams{}
-	err = json.Unmarshal(body, creds)
+	k, ok := c["api-key"]
+	if !ok {
+		return nil, fmt.Errorf("api-key not found in response")
+	}
+	creds.Key = k
+
+	s, ok := c["secret-key"]
+	if !ok {
+		return nil, fmt.Errorf("secret-key not found in response")
+	}
+	creds.Secret = s
+
 	if err != nil {
 		log.Errorf("Error unmarshaling response body: %s", err)
 		return nil, err
@@ -139,9 +152,9 @@ func (ne *NuvlaEdgeClient) Activate() error {
 		return err
 	}
 	log.Infof("Code response from activation: %v", res.StatusCode)
-	var b []byte
-	_, err = res.Body.Read(b)
-	log.Infof("Response from activation: %s", string(b))
+	if res.StatusCode != 200 && res.StatusCode != 201 {
+		return fmt.Errorf("activation failed with status code: %v", res.StatusCode)
+	}
 
 	creds, err := extractCredentialsFromActivateResponse(res)
 	log.Infof("Credentials received from activation: %v", creds)
