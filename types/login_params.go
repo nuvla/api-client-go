@@ -12,8 +12,8 @@ type LogInParams interface {
 }
 
 type ApiKeyLogInParams struct {
-	Key    string `json:"api-key"`
-	Secret string `json:"secret-key"`
+	Key    string `json:"key"`
+	Secret string `json:"secret"`
 	Href   string `json:"href"`
 }
 
