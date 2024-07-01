@@ -20,8 +20,8 @@ type NuvlaEdgeSessionFreeze struct {
 	Credentials *types.ApiKeyLogInParams `json:"credentials"`
 
 	// NuvlaEdge Client
-	NuvlaEdgeId       string `json:"nuvlaedge-id"`
-	NuvlaEdgeStatusId string `json:"nuvlaedge-status-id"`
+	NuvlaEdgeId       string `json:"nuvlaedge-uuid"`
+	NuvlaEdgeStatusId string `json:"nuvlaedge-status-uuid"`
 	InfraServiceId    string `json:"infra-service-id"`
 	VPNServiceId      string `json:"vpn-service-id"`
 }

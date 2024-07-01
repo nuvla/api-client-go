@@ -190,6 +190,7 @@ func encodeBody(request *http.Request, reqInput *types.RequestOpts, compress boo
 		}
 		request.Header.Set("Content-Type", "application/json")
 		request.Body = io.NopCloser(buffer)
+		request.ContentLength = int64(buffer.Len())
 	}
 
 	if reqInput.Data != nil {
