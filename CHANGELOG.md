@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.9](https://github.com/nuvla/api-client-go/compare/v0.7.8...v0.7.9) (2024-07-01)
+
+
+### Bug Fixes
+
+* Fix credential reading from NuvlaEdge activation ([ebb0503](https://github.com/nuvla/api-client-go/commit/ebb0503e981d53cdb0c29a846e36d53c8ae3c1f2))
+
 ## [0.7.8](https://github.com/nuvla/api-client-go/compare/v0.7.7...v0.7.8) (2024-07-01)
 
 
