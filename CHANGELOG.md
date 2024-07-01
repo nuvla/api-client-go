@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.8](https://github.com/nuvla/api-client-go/compare/v0.7.7...v0.7.8) (2024-07-01)
+
+
+### Bug Fixes
+
+* Align json tags to allow bidirectional compatibility of stored sessions with python implementation ([#38](https://github.com/nuvla/api-client-go/issues/38)) ([3939da4](https://github.com/nuvla/api-client-go/commit/3939da4870f8f9e167b141d1a3c872cf5e08ca35))
+
 ## [0.7.7](https://github.com/nuvla/api-client-go/compare/v0.7.6...v0.7.7) (2024-06-25)
 
 
