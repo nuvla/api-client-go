@@ -97,6 +97,17 @@ func (jc *NuvlaJobClient) PrintResource() {
 	log.Infof("%s resource: \n %s", jc.GetType(), string(p))
 }
 
+func (jc *NuvlaJobClient) UpdateJobStatus(opts JobStatusUpdateOpts) error {
+	res, err := jc.Edit(jc.jobId.Id, opts.GetMap(), nil)
+	if err != nil {
+		log.Errorf("Error updating job status: %s", err)
+		return err
+	}
+	PrintResponse(res)
+	opts.UpdateJobResource(jc.jobResource)
+	return nil
+}
+
 func (jc *NuvlaJobClient) SetProgress(progress int8) error {
 	if progress < 0 || progress > 100 {
 		log.Errorf("Progress value %d is not valid", progress)
@@ -124,7 +135,7 @@ func (jc *NuvlaJobClient) SetStatusMessage(message string) {
 	jc.jobResource.StatusMessage = message
 }
 
-// Set State
+// SetState
 func (jc *NuvlaJobClient) SetState(state resources.JobState) {
 	res, err := jc.Edit(jc.jobId.Id, map[string]interface{}{"state": state}, nil)
 	if err != nil {
@@ -156,6 +167,22 @@ func (jc *NuvlaJobClient) SetSuccessState() {
 	}
 	PrintResponse(res)
 	log.Debugf("Setting success state... Success.")
+}
+
+// SetFailedState sets the state to FAILED and the progress to 100
+func (jc *NuvlaJobClient) SetFailedState(errMsg string) {
+	log.Debugf("Setting failed state...")
+	opts := JobStatusUpdateOpts{
+		Progress:      100,
+		StatusMessage: errMsg,
+		State:         resources.StateFailed,
+	}
+	err := jc.UpdateJobStatus(opts)
+	if err != nil {
+		log.Errorf("Error setting failed state %s", err)
+		return
+	}
+	log.Debugf("Setting failed state... Success.")
 }
 
 func (jc *NuvlaJobClient) GetCredentials() (string, string, error) {
@@ -193,5 +220,39 @@ func PrintResponse(res *http.Response) {
 
 	bytes, _ := json.MarshalIndent(sample, "", "  ")
 	log.Infof("Setting progress response %s", string(bytes))
+}
 
+type JobStatusUpdateOpts struct {
+	Progress      int8               `json:"progress,omitempty"`
+	StatusMessage string             `json:"status-message,omitempty"`
+	State         resources.JobState `json:"state,omitempty"`
+}
+
+func (u *JobStatusUpdateOpts) GetMap() map[string]interface{} {
+	m := make(map[string]interface{})
+	if u.Progress != 0 {
+		m["progress"] = u.Progress
+	}
+	if u.StatusMessage != "" {
+		m["status-message"] = u.StatusMessage
+	}
+	if u.State != "" {
+		m["state"] = u.State
+	}
+	return m
+}
+
+func (u *JobStatusUpdateOpts) UpdateJobResource(jr *resources.JobResource) {
+	if jr == nil {
+		return
+	}
+	if u.Progress != 0 {
+		jr.Progress = u.Progress
+	}
+	if u.StatusMessage != "" {
+		jr.StatusMessage = u.StatusMessage
+	}
+	if u.State != "" {
+		jr.State = u.State
+	}
 }
