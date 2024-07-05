@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.10](https://github.com/nuvla/api-client-go/compare/v0.7.9...v0.7.10) (2024-07-05)
+
+
+### Minor Changes
+
+* Add SetFailedState and general job update function to job client ([751498a](https://github.com/nuvla/api-client-go/commit/751498a4d819f5f29c329a6ed97ab4a6244efa13))
+
 ## [0.7.9](https://github.com/nuvla/api-client-go/compare/v0.7.8...v0.7.9) (2024-07-01)
 
 
