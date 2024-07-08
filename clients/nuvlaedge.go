@@ -151,13 +151,12 @@ func (ne *NuvlaEdgeClient) Activate() error {
 		log.Errorf("Error activating NuvlaEdge: %s", err)
 		return err
 	}
-	log.Infof("Code response from activation: %v", res.StatusCode)
 	if res.StatusCode != 200 && res.StatusCode != 201 {
 		return fmt.Errorf("activation failed with status code: %v", res.StatusCode)
 	}
 
 	creds, err := extractCredentialsFromActivateResponse(res)
-	log.Infof("Credentials received from activation: %v", creds)
+
 	ne.Credentials = creds
 
 	return nil
@@ -171,15 +170,12 @@ func (ne *NuvlaEdgeClient) Commission(data map[string]interface{}) error {
 		log.Errorf("Error commissioning NuvlaEdge: %s", err)
 		return err
 	}
-	body, err := io.ReadAll(res.Body)
-	defer res.Body.Close()
+
+	err = res.Body.Close()
 	if err != nil {
-		log.Errorf("Error reading response body: %s", err)
-		return err
+		log.Errorf("Error closing commission response body: %s", err)
 	}
 
-	log.Infof("Commissioning code response: %v", res.StatusCode)
-	log.Infof("Commissioning response: %s", string(body))
 	if res.StatusCode != 200 && res.StatusCode != 201 {
 		return fmt.Errorf("commissioning failed with status code: %v", res.StatusCode)
 	}
@@ -220,7 +216,10 @@ func (ne *NuvlaEdgeClient) Heartbeat() (*http.Response, error) {
 		log.Errorf("Error sending heartbeat to NuvlaEdge: %s", err)
 		return nil, err
 	}
-	log.Infof("Code response from heartbeat: %v", res.StatusCode)
+	if res.StatusCode != http.StatusOK && res.StatusCode != http.StatusCreated {
+		return nil, fmt.Errorf("heartbeat failed with status code: %v", res.StatusCode)
+	}
+
 	log.Debug("Sending heartbeat to NuvlaEdge... Success.")
 	return res, nil
 }
