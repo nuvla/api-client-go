@@ -96,13 +96,21 @@ func (s *NuvlaSession) login(loginParams types.LogInParams) error {
 
 	// Send request
 	log.Debug("Sending login request...")
-	_, err := s.Request(&types.RequestOpts{
+	res, err := s.Request(&types.RequestOpts{
 		Method:   "POST",
 		Endpoint: s.endpoint + types.SessionEndpoint,
 		JsonData: p,
 		Headers:  h,
 	})
-	return err
+
+	if err != nil {
+		log.Errorf("Error logging in: %s", err)
+		return err
+	}
+	defer func() {
+		_ = res.Body.Close()
+	}()
+	return nil
 }
 
 /****************************************************************************************
