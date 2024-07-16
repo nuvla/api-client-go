@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.7.11](https://github.com/nuvla/api-client-go/compare/v0.7.10...v0.7.11) (2024-07-16)
+
+
+### Bug Fixes
+
+* publish sanitise endpoint function ([539379e](https://github.com/nuvla/api-client-go/commit/539379e6dd9c72437520bd48dba3670bf34bb62e))
+* Reduce unnecessary verbosity in NuvlaEdge client ([769d6f9](https://github.com/nuvla/api-client-go/commit/769d6f92551a3ae4284622b649a25159414747d3))
+* unclosed response body after log in ([0bbe621](https://github.com/nuvla/api-client-go/commit/0bbe621c824b8e17297cdccd2455324184c395cb))
+
 ## [0.7.10](https://github.com/nuvla/api-client-go/compare/v0.7.9...v0.7.10) (2024-07-05)
 
 
