@@ -33,7 +33,7 @@ type NuvlaSession struct {
 	cookies *NuvlaCookies
 }
 
-func sanitiseEndpoint(endpoint string) string {
+func SanitiseEndpoint(endpoint string) string {
 	if strings.HasPrefix(endpoint, "http://") || strings.HasPrefix(endpoint, "https://") {
 		return endpoint
 	} else {
@@ -46,7 +46,7 @@ func NewNuvlaSession(sessionAttrs *SessionOptions) *NuvlaSession {
 
 	log.Infof("Creating new Nuvla session for endpoint %s", sessionAttrs.Endpoint)
 	s := &NuvlaSession{
-		endpoint:       sanitiseEndpoint(sessionAttrs.Endpoint),
+		endpoint:       SanitiseEndpoint(sessionAttrs.Endpoint),
 		reauthenticate: sessionAttrs.ReAuthenticate,
 		persistCookie:  sessionAttrs.PersistCookie,
 		authnHeader:    sessionAttrs.AuthHeader,
