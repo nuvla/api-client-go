@@ -8,6 +8,7 @@ import (
 	"os"
 	"reflect"
 	"strconv"
+	"strings"
 )
 
 func FileExists(filePath string) bool {
@@ -85,6 +86,11 @@ func GetCleanMapFromStruct(st interface{}) map[string]interface{} {
 		valueField := val.Field(i)
 		typeField := val.Type().Field(i)
 		jsonTag := typeField.Tag.Get("json")
+
+		if strings.Contains(jsonTag, ",") {
+			jsonTagParts := strings.Split(jsonTag, ",")
+			jsonTag = jsonTagParts[0]
+		}
 
 		if !valueField.IsZero() {
 			if typeField.Name == "First" || typeField.Name == "Last" {
