@@ -9,6 +9,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"io"
 	"net/http"
+	"reflect"
 )
 
 type NuvlaClient struct {
@@ -22,15 +23,15 @@ func NewNuvlaClient(cred types.LogInParams, opts *SessionOptions) *NuvlaClient {
 	nc := &NuvlaClient{
 		NuvlaSession: NewNuvlaSession(opts),
 		SessionOpts:  *opts,
-		Credentials:  cred,
 	}
 
-	if nc.Credentials != nil && nc.reauthenticate {
+	if !reflect.ValueOf(cred).IsNil() {
 		log.Debug("Logging in with api keys...")
-		if err := nc.login(nc.Credentials); err != nil {
+		if err := nc.login(cred); err != nil {
 			log.Errorf("Error logging in with api keys: %s.", err)
+		} else {
+			nc.Credentials = cred
 		}
-
 	}
 	return nc
 }
@@ -86,6 +87,12 @@ func (nc *NuvlaClient) buildOperationUriEndPoint(uriEndpoint string, operation s
 	return fmt.Sprintf("%s/%s", uriEndpoint, operation)
 }
 
+func (nc *NuvlaClient) needsAuthentication(statusCode int, url string) bool {
+	matchStatusCode := statusCode == http.StatusUnauthorized || statusCode == http.StatusForbidden
+	matchEndpoint := url == fmt.Sprintf("%s/api/session", nc.endpoint)
+	return nc.SessionOpts.ReAuthenticate && matchStatusCode && !matchEndpoint
+}
+
 func (nc *NuvlaClient) cimiRequest(reqInput *types.RequestOpts) (*http.Response, error) {
 	// Setup default client headers for all requests
 	// TODO: Might be configurable from session
@@ -100,7 +107,13 @@ func (nc *NuvlaClient) cimiRequest(reqInput *types.RequestOpts) (*http.Response,
 		reqInput.Headers["bulk"] = "true"
 	}
 
-	r, _ := nc.Request(reqInput)
+	r, err := nc.Request(reqInput)
+	if err != nil {
+		if r != nil {
+			_ = r.Body.Close()
+		}
+		return nil, err
+	}
 
 	return r, nil
 }

@@ -2,6 +2,7 @@ package clients
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	nuvla "github.com/nuvla/api-client-go"
 	"github.com/nuvla/api-client-go/clients/resources"
@@ -49,7 +50,6 @@ type NuvlaEdgeClient struct {
 	CredentialId      *types.NuvlaID
 
 	nuvlaEdgeResource *resources.NuvlaEdgeResource
-	Credentials       *types.ApiKeyLogInParams
 }
 
 func NewNuvlaEdgeClient(nuvlaEdgeId string, credentials *types.ApiKeyLogInParams, opts ...nuvla.SessionOptFunc) *NuvlaEdgeClient {
@@ -58,20 +58,10 @@ func NewNuvlaEdgeClient(nuvlaEdgeId string, credentials *types.ApiKeyLogInParams
 		fn(sessionOpts)
 	}
 	log.Infof("Creating NuvlaEdge client with options: %v", sessionOpts)
+
 	ne := &NuvlaEdgeClient{
 		NuvlaClient: nuvla.NewNuvlaClient(credentials, sessionOpts),
 		NuvlaEdgeId: types.NewNuvlaIDFromId(nuvlaEdgeId),
-		Credentials: credentials,
-	}
-
-	if ne.Credentials != nil {
-		log.Debug("Logging in with api keys...")
-		if err := ne.LoginApiKeys(ne.Credentials.Key, ne.Credentials.Secret); err != nil {
-			log.Errorf("Error logging in with api keys: %s. Retry manually...", err)
-
-		} else {
-			log.Debug("Logging in with api keys... Success.")
-		}
 	}
 	return ne
 }
@@ -87,15 +77,6 @@ func NewNuvlaEdgeClientFromSessionFreeze(f *NuvlaEdgeSessionFreeze) *NuvlaEdgeCl
 	// Create NuvlaClient
 	ne.NuvlaClient = nuvla.NewNuvlaClient(ne.Credentials, &f.SessionOptions)
 
-	if ne.Credentials != nil {
-		log.Debug("Logging in with api keys...")
-		if err := ne.LoginApiKeys(ne.Credentials.Key, ne.Credentials.Secret); err != nil {
-			log.Errorf("Error logging in with api keys: %s. Retry manually...", err)
-
-		} else {
-			log.Debug("Logging in with api keys... Success.")
-		}
-	}
 	return ne
 }
 
@@ -134,7 +115,12 @@ func extractCredentialsFromActivateResponse(resp *http.Response) (*types.ApiKeyL
 
 // LogIn operation
 func (ne *NuvlaEdgeClient) LogIn() error {
-	err := ne.LoginApiKeys(ne.Credentials.Key, ne.Credentials.Secret)
+	creds, ok := ne.Credentials.(*types.ApiKeyLogInParams)
+	if !ok {
+		return errors.New("credentians not properly formated, exiting...")
+	}
+
+	err := ne.LoginApiKeys(creds.Key, creds.Secret)
 	if err != nil {
 		log.Errorf("Error logging in with api keys: %s", err)
 		return err
@@ -199,6 +185,15 @@ func (ne *NuvlaEdgeClient) Commission(data map[string]interface{}) error {
 // Telemetry operation
 func (ne *NuvlaEdgeClient) Telemetry(data map[string]interface{}, Select []string) (*http.Response, error) {
 	log.Debugf("Sending telemetry data to NuvlaEdge with payload %v", data)
+	if ne.nuvlaEdgeResource.NuvlaBoxStatus == "" || ne.NuvlaEdgeStatusId == nil {
+		err := ne.UpdateResourceSelect([]string{"nuvlabox-status"})
+		if err != nil {
+			log.Errorf("Error sending Telemetry, cannot find NuvlaBoxStatus ID: %s", err)
+			return nil, err
+		}
+		ne.NuvlaEdgeStatusId = types.NewNuvlaIDFromId(ne.nuvlaEdgeResource.NuvlaBoxStatus)
+	}
+
 	res, err := ne.Put(ne.NuvlaEdgeStatusId.String(), data, Select)
 	if err != nil {
 		log.Errorf("Error sending telemetry data to Nuvla: %s", err)
@@ -286,11 +281,14 @@ func (ne *NuvlaEdgeClient) Freeze(file string) error {
 	log.Infof("Freezing NuvlaEdge client...")
 	f := NuvlaEdgeSessionFreeze{
 		SessionOptions: ne.GetSessionOpts(),
-		Credentials:    ne.Credentials,
+		Credentials:    ne.Credentials.(*types.ApiKeyLogInParams),
 		// If this point is reached, NuvlaEdgeID should never be nil or empty so if null pointer exception
 		// is raised here, there is another issue
-		NuvlaEdgeId:    ne.NuvlaEdgeId.String(),
-		InfraServiceId: ne.nuvlaEdgeResource.InfrastructureServiceGroup,
+		NuvlaEdgeId: ne.NuvlaEdgeId.String(),
+	}
+
+	if ne.nuvlaEdgeResource != nil {
+		f.InfraServiceId = ne.nuvlaEdgeResource.InfrastructureServiceGroup
 	}
 
 	if ne.NuvlaEdgeStatusId != nil {
