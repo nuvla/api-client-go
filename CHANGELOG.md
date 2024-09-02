@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.7.12](https://github.com/nuvla/api-client-go/compare/v0.7.11...v0.7.12) (2024-09-02)
+
+
+### Bug Fixes
+
+* Deployment parameter wrong sent key ([79a88a2](https://github.com/nuvla/api-client-go/commit/79a88a27af7b86408c9e312d5a0b7d35ef8db889))
+* Remove redundant LogIn and fix credential parsing in NuvlaEdge client ([2eeab86](https://github.com/nuvla/api-client-go/commit/2eeab865f03150518b55066c473286a0139b02c3))
+
 ## [0.7.11](https://github.com/nuvla/api-client-go/compare/v0.7.10...v0.7.11) (2024-07-16)
 
 
