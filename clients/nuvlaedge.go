@@ -166,13 +166,13 @@ func (ne *NuvlaEdgeClient) Commission(data map[string]interface{}) error {
 		return fmt.Errorf("commissioning failed with status code: %v", res.StatusCode)
 	}
 
-	log.Infof("Updating NuvlaEdge resource...")
+	log.Debug("Updating NuvlaEdge resource...")
 	err = ne.UpdateResource()
 	if err != nil {
 		log.Errorf("Error getting NuvlaEdge resource: %s", err)
 		return err
 	}
-	log.Infof("Updating NuvlaEdge resource... Success")
+	log.Debug("Updating NuvlaEdge resource... Success")
 
 	if ne.nuvlaEdgeResource.NuvlaBoxStatus != "" {
 		ne.NuvlaEdgeStatusId = types.NewNuvlaIDFromId(ne.nuvlaEdgeResource.NuvlaBoxStatus)

@@ -9,7 +9,6 @@ import (
 	log "github.com/sirupsen/logrus"
 	"io"
 	"net/http"
-	"reflect"
 )
 
 type NuvlaClient struct {
@@ -25,7 +24,7 @@ func NewNuvlaClient(cred types.LogInParams, opts *SessionOptions) *NuvlaClient {
 		SessionOpts:  *opts,
 	}
 
-	if !reflect.ValueOf(cred).IsNil() {
+	if !common.IsNilValueInterface(cred) {
 		log.Debug("Logging in with api keys...")
 		if err := nc.login(cred); err != nil {
 			log.Errorf("Error logging in with api keys: %s.", err)
