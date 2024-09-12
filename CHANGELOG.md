@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.13](https://github.com/nuvla/api-client-go/compare/v0.7.12...v0.7.13) (2024-09-12)
+
+
+### Bug Fixes
+
+* Nil value interface checker ([832dd47](https://github.com/nuvla/api-client-go/commit/832dd474672d61e4d5c5e99167c4fd2140cf5460))
+
 ## [0.7.12](https://github.com/nuvla/api-client-go/compare/v0.7.11...v0.7.12) (2024-09-02)
 
 
