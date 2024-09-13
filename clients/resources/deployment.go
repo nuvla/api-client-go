@@ -33,7 +33,9 @@ type DeploymentParameterResource struct {
 }
 
 func DefaultDeploymentParamResource() *DeploymentParameterResource {
-	return &DeploymentParameterResource{}
+	return &DeploymentParameterResource{
+		CommonAttributesResource: CommonAttributesResource{},
+	}
 }
 
 type DeploymentParamOptsFunc func(*DeploymentParameterResource)

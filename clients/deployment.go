@@ -6,7 +6,6 @@ import (
 	"fmt"
 	nuvla "github.com/nuvla/api-client-go"
 	"github.com/nuvla/api-client-go/clients/resources"
-	"github.com/nuvla/api-client-go/common"
 	"github.com/nuvla/api-client-go/types"
 	log "github.com/sirupsen/logrus"
 )
@@ -226,15 +225,31 @@ func (dc *NuvlaDeploymentClient) UpdateParameter(userId string, opts ...resource
 	if err != nil {
 		var resourceNotFoundError *types.ResourceNotFoundError
 		if errors.As(err, &resourceNotFoundError) {
-			log.Debugf("Parameter %s not found, creating it...", paramOpts.Name)
+			log.Infof("Parameter %s not found, creating it...", paramOpts.Name)
 			return dc.CreateParameter(userId, opts...)
 		} else {
 			log.Errorf("Error getting parameter %s: %s", paramOpts.Name, err)
 		}
 	}
-	log.Debugf("Parameter %s already exists, updating it", paramOpts.Name)
-	resp, err := dc.Edit(paramData.Id, common.GetCleanMapFromStruct(paramOpts), nil)
-	common.CloseGenericResponseWithLog(resp, err)
+
+	var data map[string]interface{}
+	jsOpts, err := json.Marshal(paramOpts)
+	if err != nil {
+		log.Errorf("Error marshaling parameter %s: %w", paramOpts.Name, err)
+	}
+
+	err = json.Unmarshal(jsOpts, &data)
+	if err != nil {
+		log.Errorf("Error unmarshaling parameter %s: %w", paramOpts.Name, err)
+	}
+
+	log.Debugf("Updating parameter %s...", paramOpts.Name)
+	resp, err := dc.Edit(paramData.Id, data, nil)
+	if resp != nil {
+		if err := resp.Body.Close(); err != nil {
+			log.Errorf("Error closing response body: %s", err)
+		}
+	}
 	if err != nil {
 		log.Errorf("Error updating parameter %s: %s", paramOpts.Name, err)
 		return err
