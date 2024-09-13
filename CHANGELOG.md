@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.14](https://github.com/nuvla/api-client-go/compare/v0.7.13...v0.7.14) (2024-09-13)
+
+
+### Bug Fixes
+
+* Deployment parameter bug ([989fdf5](https://github.com/nuvla/api-client-go/commit/989fdf5c2843ca7f41f9acbdf43cd7ef6e9f5497))
+
 ## [0.7.13](https://github.com/nuvla/api-client-go/compare/v0.7.12...v0.7.13) (2024-09-12)
 
 
