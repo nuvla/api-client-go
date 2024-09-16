@@ -114,6 +114,22 @@ func (nc *NuvlaClient) cimiRequest(reqInput *types.RequestOpts) (*http.Response,
 		return nil, err
 	}
 
+	if nc.needsAuthentication(r.StatusCode, reqInput.Endpoint) {
+		log.Infof("Re-authenticating...")
+		if err := nc.login(nc.Credentials); err != nil {
+			return nil, fmt.Errorf("error re-authenticating: %s", err)
+		}
+
+		// Retry request
+		r, err = nc.Request(reqInput)
+		if err != nil {
+			if r != nil {
+				_ = r.Body.Close()
+			}
+			return nil, fmt.Errorf("error re-executing request: %s", err)
+		}
+	}
+
 	return r, nil
 }
 
