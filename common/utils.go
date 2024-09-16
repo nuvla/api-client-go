@@ -45,10 +45,11 @@ func WriteBytesToFile(b []byte, path string) error {
 func WriteIndentedJSONToFile(data interface{}, path string) error {
 	// Marshal the data with indentation
 	jsonData, err := json.MarshalIndent(data, "", "  ")
-	log.Infof("Writing Marshalled data: %s to file", jsonData)
 	if err != nil {
 		return err
 	}
+
+	log.Infof("Writing Marshalled data: %s to file", jsonData)
 
 	return WriteBytesToFile(jsonData, path)
 }

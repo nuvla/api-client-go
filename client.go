@@ -115,6 +115,16 @@ func (nc *NuvlaClient) cimiRequest(reqInput *types.RequestOpts) (*http.Response,
 	}
 
 	if nc.needsAuthentication(r.StatusCode, reqInput.Endpoint) {
+		// Read response body
+		b, err := io.ReadAll(r.Body)
+		if err != nil {
+			_ = r.Body.Close()
+			return nil, fmt.Errorf("error reading response body: %s", err)
+		}
+		log.Infof("Response body: %s", string(b))
+		log.Infof("Request: %s-%s", reqInput.Method, reqInput.Endpoint)
+
+		// Request: Unauthorized
 		log.Infof("Re-authenticating...")
 		if err := nc.login(nc.Credentials); err != nil {
 			return nil, fmt.Errorf("error re-authenticating: %s", err)

@@ -110,6 +110,12 @@ func (s *NuvlaSession) login(loginParams types.LogInParams) error {
 	defer func() {
 		_ = res.Body.Close()
 	}()
+
+	if res.StatusCode != http.StatusOK && res.StatusCode != http.StatusCreated {
+		log.Errorf("Error logging in: %s", res.Status)
+		return fmt.Errorf("error logging in: %s", res.Status)
+	}
+
 	return nil
 }
 
@@ -285,14 +291,18 @@ func (s *NuvlaSession) String() string {
 
 func (s *NuvlaSession) GetSessionOpts() SessionOptions {
 	// Fill all session opts
-	return SessionOptions{
+	opts := SessionOptions{
 		Endpoint:       s.endpoint,
 		Insecure:       s.insecure,
 		ReAuthenticate: s.reauthenticate,
-		PersistCookie:  s.persistCookie,
-		CookieFile:     s.cookies.cookieFile,
 		AuthHeader:     s.authnHeader,
 		Debug:          s.debug,
 		Compress:       s.compress,
 	}
+	if s.persistCookie && s.cookies != nil {
+		opts.PersistCookie = s.persistCookie
+		opts.CookieFile = s.cookies.cookieFile
+	}
+
+	return opts
 }

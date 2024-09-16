@@ -1,6 +1,7 @@
 package clients
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -11,6 +12,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"io"
 	"net/http"
+	"strings"
 )
 
 type NuvlaEdgeSessionFreeze struct {
@@ -28,12 +30,24 @@ type NuvlaEdgeSessionFreeze struct {
 }
 
 func (sf *NuvlaEdgeSessionFreeze) Load(file string) error {
-	return common.ReadJSONFromFile(file, sf)
+	if err := common.ReadJSONFromFile(file, sf); err != nil {
+		return fmt.Errorf("error loading NuvlaEdgeSessionFreeze: %s", err)
+	}
+
+	if sf.Credentials != nil && sf.Credentials.Key != "" && sf.Credentials.Secret != "" {
+		decodeCredentialsIfNeeded(sf.Credentials)
+	}
+
+	return nil
 }
 
 func (sf *NuvlaEdgeSessionFreeze) Save(file string) error {
 	// Write b to file
-	err := common.WriteIndentedJSONToFile(sf, file)
+	credsCopy := *sf.Credentials
+	freezeCopy := *sf
+	freezeCopy.Credentials = &credsCopy
+	encodeCredentialsIfNeeded(&credsCopy)
+	err := common.WriteIndentedJSONToFile(freezeCopy, file)
 	if err != nil {
 		log.Errorf("Error saving NuvlaEdgeSessionFreeze: %s", err)
 		return err
@@ -89,7 +103,7 @@ func extractCredentialsFromActivateResponse(resp *http.Response) (*types.ApiKeyL
 		log.Errorf("Error reading response body: %s", err)
 		return nil, err
 	}
-	log.Infof("Response body from activation: %s", string(body))
+
 	c := make(map[string]string)
 	err = json.Unmarshal(body, &c)
 	creds := &types.ApiKeyLogInParams{}
@@ -117,7 +131,7 @@ func extractCredentialsFromActivateResponse(resp *http.Response) (*types.ApiKeyL
 func (ne *NuvlaEdgeClient) LogIn() error {
 	creds, ok := ne.Credentials.(*types.ApiKeyLogInParams)
 	if !ok {
-		return errors.New("credentians not properly formated, exiting...")
+		return errors.New("credentials not properly formated, exiting")
 	}
 
 	err := ne.LoginApiKeys(creds.Key, creds.Secret)
@@ -279,9 +293,15 @@ func (ne *NuvlaEdgeClient) GetNuvlaClient() *nuvla.NuvlaClient {
 
 func (ne *NuvlaEdgeClient) Freeze(file string) error {
 	log.Infof("Freezing NuvlaEdge client...")
+
+	credCopy := *ne.Credentials.(*types.ApiKeyLogInParams)
+	if ne.Credentials != nil && credCopy.Key != "" && credCopy.Secret != "" {
+		encodeCredentialsIfNeeded(&credCopy)
+	}
+
 	f := NuvlaEdgeSessionFreeze{
 		SessionOptions: ne.GetSessionOpts(),
-		Credentials:    ne.Credentials.(*types.ApiKeyLogInParams),
+		Credentials:    &credCopy,
 		// If this point is reached, NuvlaEdgeID should never be nil or empty so if null pointer exception
 		// is raised here, there is another issue
 		NuvlaEdgeId: ne.NuvlaEdgeId.String(),
@@ -296,4 +316,34 @@ func (ne *NuvlaEdgeClient) Freeze(file string) error {
 	}
 
 	return f.Save(file)
+}
+
+func encodeCredentialsIfNeeded(creds *types.ApiKeyLogInParams) {
+	if !strings.HasPrefix(creds.Key, "credential/") {
+		// If the key is not a reference to a credential, we don't need to encode it
+		log.Infof("API key is not a reference to a credential, skipping encoding")
+		return
+	}
+	log.Infof("Encoding API key and secret...")
+	creds.Key = base64.URLEncoding.EncodeToString([]byte(creds.Key))
+	creds.Secret = base64.URLEncoding.EncodeToString([]byte(creds.Secret))
+}
+
+func decodeCredentialsIfNeeded(creds *types.ApiKeyLogInParams) {
+	if strings.HasPrefix(creds.Key, "credential/") {
+		// If the key is a reference to a credential, we don't need to decode it
+		log.Infof("API key is a reference to a credential, skipping decoding")
+		return
+	}
+	log.Infof("Decoding API key and secret...")
+	key, err := base64.URLEncoding.DecodeString(creds.Key)
+	if err != nil {
+		log.Errorf("Error decoding api key: %s", err)
+	}
+	secret, err := base64.URLEncoding.DecodeString(creds.Secret)
+	if err != nil {
+		log.Errorf("Error decoding secret key: %s", err)
+	}
+	creds.Key = string(key)
+	creds.Secret = string(secret)
 }
