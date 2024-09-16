@@ -315,7 +315,7 @@ func (nc *NuvlaClient) Add(resourceType resources.NuvlaResourceType, data map[st
 		log.Errorf("Error unmarshaling response body, cannot extract ID: %s", err)
 		return nil, err
 	}
-	log.Infof("ID of new %s: %s", resourceType, resData)
+	log.Debugf("ID of new %s: %s", resourceType, resData)
 
 	return types.NewNuvlaIDFromId(resData["resource-id"].(string)), nil
 }

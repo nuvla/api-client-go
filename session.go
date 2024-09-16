@@ -44,7 +44,7 @@ func SanitiseEndpoint(endpoint string) string {
 
 func NewNuvlaSession(sessionAttrs *SessionOptions) *NuvlaSession {
 
-	log.Infof("Creating new Nuvla session for endpoint %s", sessionAttrs.Endpoint)
+	log.Debugf("Creating new Nuvla session for endpoint %s", sessionAttrs.Endpoint)
 	s := &NuvlaSession{
 		endpoint:       SanitiseEndpoint(sessionAttrs.Endpoint),
 		reauthenticate: sessionAttrs.ReAuthenticate,

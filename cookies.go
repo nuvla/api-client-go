@@ -70,7 +70,7 @@ func NewNuvlaCookies(cookieFile string, endpoint string) *NuvlaCookies {
 }
 
 func (c *NuvlaCookies) load() error {
-	log.Info("Loading cookies from file ...")
+	log.Debug("Loading cookies from file ...")
 	// Open the file
 	file, err := os.Open(c.cookieFile)
 	if err != nil {
@@ -102,7 +102,7 @@ func (c *NuvlaCookies) load() error {
 		return err
 	}
 
-	log.Info("Loading cookies from file... success")
+	log.Debug("Loading cookies from file... success")
 	return nil
 }
 
@@ -153,13 +153,13 @@ func (c *NuvlaCookies) SaveIfNeeded(newCookie http.CookieJar) error {
 
 	// Compare jar
 	if !compareCookies(c.lastCookie, newCookies) {
-		log.Infof("Cookies are different, saving new jar: %s", c.cookieFile)
+		log.Debugf("Cookies are different, saving new jar: %s", c.cookieFile)
 		// If jar are different, save new jar
 		c.jar.SetCookies(c.endpoint, newCookies)
 		c.lastCookie = newCookies
 		return c.Save()
 	}
-	log.Infof("Cookies are the same, not saving jar: %s", c.cookieFile)
+	log.Debugf("Cookies are the same, not saving jar: %s", c.cookieFile)
 	return nil
 
 }
