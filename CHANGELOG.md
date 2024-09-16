@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.7.15](https://github.com/nuvla/api-client-go/compare/v0.7.14...v0.7.15) (2024-09-16)
+
+
+### Bug Fixes
+
+* Add re-authentication to client ([e8935e4](https://github.com/nuvla/api-client-go/commit/e8935e4981efa07d86362feefc14203b8bdb16ba))
+
+
+### Minor Changes
+
+* Add credential encoding to nuvlaedge client freeze and load ([1c2b7be](https://github.com/nuvla/api-client-go/commit/1c2b7be37c698f380b8187d81ecb0b86b773da99))
+
 ## [0.7.14](https://github.com/nuvla/api-client-go/compare/v0.7.13...v0.7.14) (2024-09-13)
 
 
