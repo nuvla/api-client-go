@@ -6,7 +6,8 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"github.com/nuvla/api-client-go/types"
+    "github.com/mattbaird/jsonpatch"
+    "github.com/nuvla/api-client-go/types"
 	log "github.com/sirupsen/logrus"
 	"io"
 	"net/http"
@@ -169,6 +170,8 @@ func bodyTypeCompatible(bodyContent interface{}) bool {
 	case map[string]interface{}:
 		return true
 	case []map[string]interface{}:
+		return true
+	case []jsonpatch.JsonPatchOperation:
 		return true
 	default:
 		return false

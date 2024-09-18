@@ -3,6 +3,7 @@ package api_client_go
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/mattbaird/jsonpatch"
 	"github.com/nuvla/api-client-go/clients/resources"
 	"github.com/nuvla/api-client-go/common"
 	"github.com/nuvla/api-client-go/types"
@@ -204,7 +205,7 @@ func (nc *NuvlaClient) BulkPost(endpoint string, data []map[string]interface{}) 
 	return resp, nil
 }
 
-func (nc *NuvlaClient) Put(uri string, data map[string]interface{}, selectFields []string) (*http.Response, error) {
+func (nc *NuvlaClient) Put(uri string, data interface{}, selectFields []string) (*http.Response, error) {
 	r := &types.RequestOpts{
 		Method:   "PUT",
 		Endpoint: nc.buildUriEndPoint(uri),
@@ -212,6 +213,11 @@ func (nc *NuvlaClient) Put(uri string, data map[string]interface{}, selectFields
 		Params: &types.RequestParams{
 			Select: selectFields,
 		},
+		Headers: make(map[string]string),
+    }
+	_, isPatch := data.([]jsonpatch.JsonPatchOperation)
+	if isPatch {
+		r.Headers["Content-Type"] = "application/json-patch+json"
 	}
 
 	resp, err := nc.cimiRequest(r)
