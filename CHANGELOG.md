@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.7.16](https://github.com/nuvla/api-client-go/compare/v0.7.15...v0.7.16) (2024-09-24)
+
+
+### Bug Fixes
+
+* Remove extra logging verbosity ([b3800ea](https://github.com/nuvla/api-client-go/commit/b3800ea3ec1bda8c73c0cd980dc68389302e31c7))
+
+
+### Minor Changes
+
+* Add support for IRS in NuvlaEdge client ([becda24](https://github.com/nuvla/api-client-go/commit/becda243781af65288266ac04c8b6754f66edb07))
+
 ## [0.7.15](https://github.com/nuvla/api-client-go/compare/v0.7.14...v0.7.15) (2024-09-16)
 
 
