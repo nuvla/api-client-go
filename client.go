@@ -7,6 +7,7 @@ import (
 	"github.com/nuvla/api-client-go/common"
 	"github.com/nuvla/api-client-go/types"
 	log "github.com/sirupsen/logrus"
+	"github.com/wI2L/jsondiff"
 	"io"
 	"net/http"
 )
@@ -204,7 +205,7 @@ func (nc *NuvlaClient) BulkPost(endpoint string, data []map[string]interface{}) 
 	return resp, nil
 }
 
-func (nc *NuvlaClient) Put(uri string, data map[string]interface{}, selectFields []string) (*http.Response, error) {
+func (nc *NuvlaClient) Put(uri string, data interface{}, selectFields []string) (*http.Response, error) {
 	r := &types.RequestOpts{
 		Method:   "PUT",
 		Endpoint: nc.buildUriEndPoint(uri),
@@ -212,6 +213,11 @@ func (nc *NuvlaClient) Put(uri string, data map[string]interface{}, selectFields
 		Params: &types.RequestParams{
 			Select: selectFields,
 		},
+		Headers: make(map[string]string),
+	}
+	_, isPatch := data.(jsondiff.Patch)
+	if isPatch {
+		r.Headers["Content-Type"] = "application/json-patch+json"
 	}
 
 	resp, err := nc.cimiRequest(r)

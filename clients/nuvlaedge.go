@@ -185,7 +185,7 @@ func (ne *NuvlaEdgeClient) Commission(data map[string]interface{}) error {
 }
 
 // Telemetry operation
-func (ne *NuvlaEdgeClient) Telemetry(data map[string]interface{}, Select []string) (*http.Response, error) {
+func (ne *NuvlaEdgeClient) Telemetry(data interface{}, Select []string) (*http.Response, error) {
 	log.Debugf("Sending telemetry data to NuvlaEdge with payload %v", data)
 	if ne.nuvlaEdgeResource.NuvlaBoxStatus == "" || ne.NuvlaEdgeStatusId == nil {
 		err := ne.UpdateResourceSelect([]string{"nuvlabox-status"})

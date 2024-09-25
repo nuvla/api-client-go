@@ -219,7 +219,7 @@ func PrintResponse(res *http.Response) {
 	}
 
 	bytes, _ := json.MarshalIndent(sample, "", "  ")
-	log.Infof("Setting progress response %s", string(bytes))
+	log.Debugf("Setting progress response %s", string(bytes))
 }
 
 type JobStatusUpdateOpts struct {

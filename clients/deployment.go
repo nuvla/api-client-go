@@ -146,6 +146,7 @@ func (dc *NuvlaDeploymentClient) searchParameter(parentId, paramName, nodeId str
 	if err != nil {
 		log.Debugf("Error searching parameter %s: %s", paramName, err)
 	}
+
 	if parameters == nil || parameters.Count <= 0 {
 		log.Warnf("Parameter %s not found", paramName)
 		return nil, types.NewResourceNotFoundError(resources.DeploymentParameterType, "")

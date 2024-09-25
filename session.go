@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"github.com/nuvla/api-client-go/types"
 	log "github.com/sirupsen/logrus"
+	"github.com/wI2L/jsondiff"
 	"io"
 	"net/http"
 	"net/http/cookiejar"
@@ -169,6 +170,8 @@ func bodyTypeCompatible(bodyContent interface{}) bool {
 	case map[string]interface{}:
 		return true
 	case []map[string]interface{}:
+		return true
+	case jsondiff.Patch:
 		return true
 	default:
 		return false
