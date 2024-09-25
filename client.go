@@ -3,11 +3,11 @@ package api_client_go
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/mattbaird/jsonpatch"
 	"github.com/nuvla/api-client-go/clients/resources"
 	"github.com/nuvla/api-client-go/common"
 	"github.com/nuvla/api-client-go/types"
 	log "github.com/sirupsen/logrus"
+	"github.com/wI2L/jsondiff"
 	"io"
 	"net/http"
 )
@@ -214,8 +214,8 @@ func (nc *NuvlaClient) Put(uri string, data interface{}, selectFields []string) 
 			Select: selectFields,
 		},
 		Headers: make(map[string]string),
-    }
-	_, isPatch := data.([]jsonpatch.JsonPatchOperation)
+	}
+	_, isPatch := data.(jsondiff.Patch)
 	if isPatch {
 		r.Headers["Content-Type"] = "application/json-patch+json"
 	}

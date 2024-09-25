@@ -6,9 +6,9 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-    "github.com/mattbaird/jsonpatch"
-    "github.com/nuvla/api-client-go/types"
+	"github.com/nuvla/api-client-go/types"
 	log "github.com/sirupsen/logrus"
+	"github.com/wI2L/jsondiff"
 	"io"
 	"net/http"
 	"net/http/cookiejar"
@@ -171,7 +171,7 @@ func bodyTypeCompatible(bodyContent interface{}) bool {
 		return true
 	case []map[string]interface{}:
 		return true
-	case []jsonpatch.JsonPatchOperation:
+	case jsondiff.Patch:
 		return true
 	default:
 		return false
