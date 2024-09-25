@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.0](https://github.com/nuvla/api-client-go/compare/v0.7.16...v0.8.0) (2024-09-25)
+
+
+### Features
+
+* add support for sending JSON Patch ([#48](https://github.com/nuvla/api-client-go/issues/48)) ([7302d29](https://github.com/nuvla/api-client-go/commit/7302d293817c04874281d09489db84bc966dcf51))
+
 ## [0.7.16](https://github.com/nuvla/api-client-go/compare/v0.7.15...v0.7.16) (2024-09-24)
 
 
