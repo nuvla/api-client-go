@@ -1,6 +1,7 @@
 package clients
 
 import (
+	"context"
 	"github.com/nuvla/api-client-go"
 	"github.com/nuvla/api-client-go/clients/resources"
 	"github.com/nuvla/api-client-go/types"
@@ -23,16 +24,16 @@ func NewUserClient(endpoint string, insecure bool, debug bool) *UserClient {
 	}
 }
 
-func (c *UserClient) AddNuvlaEdge(data map[string]interface{}) (*types.NuvlaID, error) {
-	return c.Add("nuvlabox", data)
+func (c *UserClient) AddNuvlaEdge(ctx context.Context, data map[string]interface{}) (*types.NuvlaID, error) {
+	return c.Add(ctx, "nuvlabox", data)
 }
 
-func (c *UserClient) GetNuvlaEdge(id string, fields []string) (*types.NuvlaResource, error) {
-	return c.Get(id, fields)
+func (c *UserClient) GetNuvlaEdge(ctx context.Context, id string, fields []string) (*types.NuvlaResource, error) {
+	return c.Get(ctx, id, fields)
 }
 
-func (c *UserClient) AddCredential(data map[string]interface{}) (*types.NuvlaID, error) {
-	return c.Add("credential", data)
+func (c *UserClient) AddCredential(ctx context.Context, data map[string]interface{}) (*types.NuvlaID, error) {
+	return c.Add(ctx, "credential", data)
 }
 
 func (c *UserClient) GetId() string {

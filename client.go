@@ -1,6 +1,7 @@
 package api_client_go
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/nuvla/api-client-go/clients/resources"
@@ -93,7 +94,7 @@ func (nc *NuvlaClient) needsAuthentication(statusCode int, url string) bool {
 	return nc.SessionOpts.ReAuthenticate && matchStatusCode && !matchEndpoint
 }
 
-func (nc *NuvlaClient) cimiRequest(reqInput *types.RequestOpts) (*http.Response, error) {
+func (nc *NuvlaClient) cimiRequest(ctx context.Context, reqInput *types.RequestOpts) (*http.Response, error) {
 	// Setup default client headers for all requests
 	// TODO: Might be configurable from session
 	if reqInput.Headers == nil {
@@ -107,7 +108,7 @@ func (nc *NuvlaClient) cimiRequest(reqInput *types.RequestOpts) (*http.Response,
 		reqInput.Headers["bulk"] = "true"
 	}
 
-	r, err := nc.Request(reqInput)
+	r, err := nc.Request(ctx, reqInput)
 	if err != nil {
 		if r != nil {
 			_ = r.Body.Close()
@@ -132,7 +133,7 @@ func (nc *NuvlaClient) cimiRequest(reqInput *types.RequestOpts) (*http.Response,
 		}
 
 		// Retry request
-		r, err = nc.Request(reqInput)
+		r, err = nc.Request(ctx, reqInput)
 		if err != nil {
 			if r != nil {
 				_ = r.Body.Close()
@@ -147,7 +148,7 @@ func (nc *NuvlaClient) cimiRequest(reqInput *types.RequestOpts) (*http.Response,
 // Get executes the get http method
 // Allow for selective fields to be returned via the selectFields parameter
 
-func (nc *NuvlaClient) Get(resourceId string, selectFields []string) (*types.NuvlaResource, error) {
+func (nc *NuvlaClient) Get(ctx context.Context, resourceId string, selectFields []string) (*types.NuvlaResource, error) {
 	// Define request inputs to allow adding select fields
 	r := &types.RequestOpts{
 		Method:   "GET",
@@ -161,7 +162,7 @@ func (nc *NuvlaClient) Get(resourceId string, selectFields []string) (*types.Nuv
 		}
 	}
 
-	resp, err := nc.cimiRequest(r)
+	resp, err := nc.cimiRequest(ctx, r)
 	if err != nil {
 		log.Errorf("Error executing GET request: %s", err)
 		return nil, err
@@ -172,14 +173,14 @@ func (nc *NuvlaClient) Get(resourceId string, selectFields []string) (*types.Nuv
 
 // Post executes the post http method
 // Data can be any type, but it will be marshaled into JSON
-func (nc *NuvlaClient) Post(endpoint string, data map[string]interface{}) (*http.Response, error) {
+func (nc *NuvlaClient) Post(ctx context.Context, endpoint string, data map[string]interface{}) (*http.Response, error) {
 	r := &types.RequestOpts{
 		Method:   "POST",
 		JsonData: data,
 		Endpoint: nc.buildUriEndPoint(endpoint),
 	}
 
-	resp, err := nc.cimiRequest(r)
+	resp, err := nc.cimiRequest(ctx, r)
 	if err != nil {
 		log.Errorf("Error executing POST request: %s", err)
 		return nil, err
@@ -188,7 +189,7 @@ func (nc *NuvlaClient) Post(endpoint string, data map[string]interface{}) (*http
 	return resp, nil
 }
 
-func (nc *NuvlaClient) BulkPost(endpoint string, data []map[string]interface{}) (*http.Response, error) {
+func (nc *NuvlaClient) BulkPost(ctx context.Context, endpoint string, data []map[string]interface{}) (*http.Response, error) {
 	r := &types.RequestOpts{
 		Method:   "POST",
 		JsonData: data,
@@ -196,7 +197,7 @@ func (nc *NuvlaClient) BulkPost(endpoint string, data []map[string]interface{}) 
 		Bulk:     true,
 	}
 
-	resp, err := nc.cimiRequest(r)
+	resp, err := nc.cimiRequest(ctx, r)
 	if err != nil {
 		log.Errorf("Error executing POST request: %s", err)
 		return nil, err
@@ -205,7 +206,7 @@ func (nc *NuvlaClient) BulkPost(endpoint string, data []map[string]interface{}) 
 	return resp, nil
 }
 
-func (nc *NuvlaClient) Put(uri string, data interface{}, selectFields []string) (*http.Response, error) {
+func (nc *NuvlaClient) Put(ctx context.Context, uri string, data interface{}, selectFields []string) (*http.Response, error) {
 	r := &types.RequestOpts{
 		Method:   "PUT",
 		Endpoint: nc.buildUriEndPoint(uri),
@@ -220,7 +221,7 @@ func (nc *NuvlaClient) Put(uri string, data interface{}, selectFields []string) 
 		r.Headers["Content-Type"] = "application/json-patch+json"
 	}
 
-	resp, err := nc.cimiRequest(r)
+	resp, err := nc.cimiRequest(ctx, r)
 	if err != nil {
 		log.Errorf("Error executing PUT request: %s", err)
 		return nil, err
@@ -228,12 +229,12 @@ func (nc *NuvlaClient) Put(uri string, data interface{}, selectFields []string) 
 	return resp, nil
 }
 
-func (nc *NuvlaClient) delete(deleteEndpoint string) (*http.Response, error) {
+func (nc *NuvlaClient) delete(ctx context.Context, deleteEndpoint string) (*http.Response, error) {
 	r := &types.RequestOpts{
 		Method:   "DELETE",
 		Endpoint: deleteEndpoint,
 	}
-	resp, err := nc.cimiRequest(r)
+	resp, err := nc.cimiRequest(ctx, r)
 	if err != nil {
 		log.Errorf("Error executing PUT request: %s", err)
 		return nil, err
@@ -241,20 +242,20 @@ func (nc *NuvlaClient) delete(deleteEndpoint string) (*http.Response, error) {
 	return resp, nil
 }
 
-func (nc *NuvlaClient) Operation(resourceId, operation string, data map[string]interface{}) (*http.Response, error) {
-	return nc.Post(nc.buildOperationUriEndPoint(resourceId, operation), data)
+func (nc *NuvlaClient) Operation(ctx context.Context, resourceId, operation string, data map[string]interface{}) (*http.Response, error) {
+	return nc.Post(ctx, nc.buildOperationUriEndPoint(resourceId, operation), data)
 }
 
-func (nc *NuvlaClient) BulkOperation(resourceId string, operation string, data []map[string]interface{}) (*http.Response, error) {
-	return nc.BulkPost(nc.buildOperationUriEndPoint(resourceId, operation), data)
+func (nc *NuvlaClient) BulkOperation(ctx context.Context, resourceId string, operation string, data []map[string]interface{}) (*http.Response, error) {
+	return nc.BulkPost(ctx, nc.buildOperationUriEndPoint(resourceId, operation), data)
 }
 
-func (nc *NuvlaClient) Edit(resourceId string, data map[string]interface{}, toSelect []string) (*http.Response, error) {
-	return nc.Put(resourceId, data, toSelect)
+func (nc *NuvlaClient) Edit(ctx context.Context, resourceId string, data map[string]interface{}, toSelect []string) (*http.Response, error) {
+	return nc.Put(ctx, resourceId, data, toSelect)
 }
 
-func (nc *NuvlaClient) Delete(resourceId string) (*http.Response, error) {
-	return nc.delete(nc.buildOperationUriEndPoint(resourceId, "delete"))
+func (nc *NuvlaClient) Delete(ctx context.Context, resourceId string) (*http.Response, error) {
+	return nc.delete(ctx, nc.buildOperationUriEndPoint(resourceId, "delete"))
 }
 
 type SearchOptions struct {
@@ -278,7 +279,7 @@ func NewDefaultSearchOptions() *SearchOptions {
 	}
 }
 
-func (nc *NuvlaClient) Search(resourceType string, opts *SearchOptions) (*resources.NuvlaResourceCollection, error) {
+func (nc *NuvlaClient) Search(ctx context.Context, resourceType string, opts *SearchOptions) (*resources.NuvlaResourceCollection, error) {
 
 	r := &types.RequestOpts{
 		Method:   "PUT",
@@ -287,7 +288,7 @@ func (nc *NuvlaClient) Search(resourceType string, opts *SearchOptions) (*resour
 		JsonData: nil,
 		Data:     common.GetCleanMapFromStruct(opts),
 	}
-	resp, err := nc.cimiRequest(r)
+	resp, err := nc.cimiRequest(ctx, r)
 
 	if err != nil {
 		log.Errorf("Error executing GET request: %s", err)
@@ -302,12 +303,13 @@ func (nc *NuvlaClient) Search(resourceType string, opts *SearchOptions) (*resour
 }
 
 // Add creates a new resource of the given type and returns its ID
-func (nc *NuvlaClient) Add(resourceType resources.NuvlaResourceType, data map[string]interface{}) (*types.NuvlaID, error) {
-	res, err := nc.Post(string(resourceType), data)
+func (nc *NuvlaClient) Add(ctx context.Context, resourceType resources.NuvlaResourceType, data map[string]interface{}) (*types.NuvlaID, error) {
+	res, err := nc.Post(ctx, string(resourceType), data)
 	if err != nil {
 		log.Errorf("Error adding %s: %s", resourceType, err)
 		return nil, err
 	}
+
 	var resData map[string]interface{}
 
 	bodyBytes, err := io.ReadAll(res.Body)
@@ -316,11 +318,13 @@ func (nc *NuvlaClient) Add(resourceType resources.NuvlaResourceType, data map[st
 		log.Errorf("Error reading response body, cannot extract ID: %s", err)
 		return nil, err
 	}
+
 	err = json.Unmarshal(bodyBytes, &resData)
 	if err != nil {
 		log.Errorf("Error unmarshaling response body, cannot extract ID: %s", err)
 		return nil, err
 	}
+
 	log.Debugf("ID of new %s: %s", resourceType, resData)
 
 	return types.NewNuvlaIDFromId(resData["resource-id"].(string)), nil
