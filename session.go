@@ -3,9 +3,11 @@ package api_client_go
 import (
 	"bytes"
 	"compress/gzip"
+	"context"
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"github.com/nuvla/api-client-go/common"
 	"github.com/nuvla/api-client-go/types"
 	log "github.com/sirupsen/logrus"
 	"github.com/wI2L/jsondiff"
@@ -95,9 +97,12 @@ func (s *NuvlaSession) login(loginParams types.LogInParams) error {
 	p := make(map[string]interface{})
 	p["template"] = loginParams.GetParams()
 
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(common.DefaultRequestTimeout)*time.Second)
+	defer cancel()
+
 	// Send request
 	log.Debug("Sending login request...")
-	res, err := s.Request(&types.RequestOpts{
+	res, err := s.Request(ctx, &types.RequestOpts{
 		Method:   "POST",
 		Endpoint: s.endpoint + types.SessionEndpoint,
 		JsonData: p,
@@ -234,11 +239,11 @@ func encodeBody(request *http.Request, reqInput *types.RequestOpts, compress boo
 	return nil
 }
 
-func (s *NuvlaSession) Request(reqInput *types.RequestOpts) (*http.Response, error) {
+func (s *NuvlaSession) Request(ctx context.Context, reqInput *types.RequestOpts) (*http.Response, error) {
 	// Build endpoint
 	log.Debugf("Sending [%s] request to endpoint: %s", reqInput.Method, reqInput.Endpoint)
 
-	r, err := http.NewRequest(reqInput.Method, reqInput.Endpoint, nil)
+	r, err := http.NewRequestWithContext(ctx, reqInput.Method, reqInput.Endpoint, nil)
 	if err != nil {
 		log.Errorf("Error creating request: %s", err)
 		return nil, err

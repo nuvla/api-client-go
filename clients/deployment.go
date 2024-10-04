@@ -1,6 +1,7 @@
 package clients
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -26,9 +27,9 @@ func NewNuvlaDeploymentClient(deploymentId string, client *nuvla.NuvlaClient) *N
 }
 
 // UpdateSessionFromDeploymentCredentials after retrieving
-func (dc *NuvlaDeploymentClient) UpdateSessionFromDeploymentCredentials() error {
+func (dc *NuvlaDeploymentClient) UpdateSessionFromDeploymentCredentials(ctx context.Context) error {
 	if dc.deploymentResource == nil {
-		if err := dc.UpdateResource(); err != nil {
+		if err := dc.UpdateResource(ctx); err != nil {
 			log.Errorf("Error updating Deployment resource %s", dc.deploymentId)
 			return err
 		}
@@ -55,8 +56,8 @@ func (dc *NuvlaDeploymentClient) SetDeploymentState() error {
 	return nil
 }
 
-func (dc *NuvlaDeploymentClient) UpdateResource() error {
-	res, err := dc.Get(dc.deploymentId.Id, nil)
+func (dc *NuvlaDeploymentClient) UpdateResource(ctx context.Context) error {
+	res, err := dc.Get(ctx, dc.deploymentId.Id, nil)
 	if err != nil {
 		log.Infof("Error updating Deployment resource %s", dc.deploymentId)
 		return nil
@@ -114,9 +115,9 @@ func (dc *NuvlaDeploymentClient) PrintResource() {
 	log.Infof("%s resource: \n %s", dc.GetType(), string(p))
 }
 
-func (dc *NuvlaDeploymentClient) SetState(state resources.DeploymentState) error {
+func (dc *NuvlaDeploymentClient) SetState(ctx context.Context, state resources.DeploymentState) error {
 	log.Infof("Setting deployment state %s...", state)
-	res, err := dc.Edit(dc.GetId(), map[string]interface{}{"state": state}, nil)
+	res, err := dc.Edit(ctx, dc.GetId(), map[string]interface{}{"state": state}, nil)
 	if err != nil {
 		log.Errorf("Error setting deployment state %s: %s", state, err)
 		return err
@@ -126,11 +127,11 @@ func (dc *NuvlaDeploymentClient) SetState(state resources.DeploymentState) error
 	return nil
 }
 
-func (dc *NuvlaDeploymentClient) SetStateStarted() error {
-	return dc.SetState(resources.StateStarted)
+func (dc *NuvlaDeploymentClient) SetStateStarted(ctx context.Context) error {
+	return dc.SetState(ctx, resources.StateStarted)
 }
 
-func (dc *NuvlaDeploymentClient) searchParameter(parentId, paramName, nodeId string) (*resources.DeploymentParameterResource, error) {
+func (dc *NuvlaDeploymentClient) searchParameter(ctx context.Context, parentId, paramName, nodeId string) (*resources.DeploymentParameterResource, error) {
 	filters := fmt.Sprintf("parent='%s' and name='%s'", parentId, paramName)
 	if nodeId != "" {
 		// Concatenate node-id='nodeId'
@@ -141,7 +142,7 @@ func (dc *NuvlaDeploymentClient) searchParameter(parentId, paramName, nodeId str
 	opts := &nuvla.SearchOptions{
 		Filter: filters,
 	}
-	parameters, err := dc.Search(string(resources.DeploymentParameterType), opts)
+	parameters, err := dc.Search(ctx, string(resources.DeploymentParameterType), opts)
 	// TODO: See if err != nil should be consider as resource not found error
 	if err != nil {
 		log.Debugf("Error searching parameter %s: %s", paramName, err)
@@ -160,8 +161,8 @@ func (dc *NuvlaDeploymentClient) searchParameter(parentId, paramName, nodeId str
 	return param, nil
 }
 
-func (dc *NuvlaDeploymentClient) SearchParameter(parentId, paramName, nodeId string) *resources.DeploymentParameterResource {
-	param, err := dc.searchParameter(parentId, paramName, nodeId)
+func (dc *NuvlaDeploymentClient) SearchParameter(ctx context.Context, parentId, paramName, nodeId string) *resources.DeploymentParameterResource {
+	param, err := dc.searchParameter(ctx, parentId, paramName, nodeId)
 	if err != nil {
 		log.Errorf("Error getting parameter %s: %s", paramName, err)
 		return nil
@@ -169,8 +170,8 @@ func (dc *NuvlaDeploymentClient) SearchParameter(parentId, paramName, nodeId str
 	return param
 }
 
-func (dc *NuvlaDeploymentClient) GetParameter(paramId string, paramSelect []string) (*resources.DeploymentParameterResource, error) {
-	res, err := dc.Get(paramId, paramSelect)
+func (dc *NuvlaDeploymentClient) GetParameter(ctx context.Context, paramId string, paramSelect []string) (*resources.DeploymentParameterResource, error) {
+	res, err := dc.Get(ctx, paramId, paramSelect)
 	if err != nil {
 		log.Errorf("Error getting parameter %s: %s", paramId, err)
 		return nil, err
@@ -184,7 +185,7 @@ func (dc *NuvlaDeploymentClient) GetParameter(paramId string, paramSelect []stri
 	return param, nil
 }
 
-func (dc *NuvlaDeploymentClient) CreateParameter(userId string, opts ...resources.DeploymentParamOptsFunc) error {
+func (dc *NuvlaDeploymentClient) CreateParameter(ctx context.Context, userId string, opts ...resources.DeploymentParamOptsFunc) error {
 	paramOpts := resources.DefaultDeploymentParamResource()
 	for _, fn := range opts {
 		fn(paramOpts)
@@ -209,25 +210,25 @@ func (dc *NuvlaDeploymentClient) CreateParameter(userId string, opts ...resource
 	jsOpts, _ := json.Marshal(paramOpts)
 	_ = json.Unmarshal(jsOpts, &m)
 	//ATM we don't use the ID of the parameter
-	_, err := dc.Add(resources.DeploymentParameterType, m)
+	_, err := dc.Add(ctx, resources.DeploymentParameterType, m)
 	return err
 }
 
 // UpdateParameter updates a parameter. If the parameter does not exist, it creates it.
-func (dc *NuvlaDeploymentClient) UpdateParameter(userId string, opts ...resources.DeploymentParamOptsFunc) error {
+func (dc *NuvlaDeploymentClient) UpdateParameter(ctx context.Context, userId string, opts ...resources.DeploymentParamOptsFunc) error {
 	paramOpts := resources.DefaultDeploymentParamResource()
 	for _, fn := range opts {
 		fn(paramOpts)
 	}
 
 	// Try to get the parameter to retrieve the ID, if it does not exist, create it
-	paramData, err := dc.searchParameter(paramOpts.Parent, paramOpts.Name, paramOpts.NodeId)
+	paramData, err := dc.searchParameter(ctx, paramOpts.Parent, paramOpts.Name, paramOpts.NodeId)
 
 	if err != nil {
 		var resourceNotFoundError *types.ResourceNotFoundError
 		if errors.As(err, &resourceNotFoundError) {
 			log.Infof("Parameter %s not found, creating it...", paramOpts.Name)
-			return dc.CreateParameter(userId, opts...)
+			return dc.CreateParameter(ctx, userId, opts...)
 		} else {
 			log.Errorf("Error getting parameter %s: %s", paramOpts.Name, err)
 		}
@@ -245,7 +246,7 @@ func (dc *NuvlaDeploymentClient) UpdateParameter(userId string, opts ...resource
 	}
 
 	log.Debugf("Updating parameter %s...", paramOpts.Name)
-	resp, err := dc.Edit(paramData.Id, data, nil)
+	resp, err := dc.Edit(ctx, paramData.Id, data, nil)
 	if resp != nil {
 		if err := resp.Body.Close(); err != nil {
 			log.Errorf("Error closing response body: %s", err)

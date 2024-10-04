@@ -1,6 +1,7 @@
 package clients
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	nuvla "github.com/nuvla/api-client-go"
@@ -131,9 +132,9 @@ func (ne *NuvlaEdgeClient) LogIn(creds types.ApiKeyLogInParams) error {
 }
 
 // Activate Operation
-func (ne *NuvlaEdgeClient) Activate() (types.ApiKeyLogInParams, error) {
+func (ne *NuvlaEdgeClient) Activate(ctx context.Context) (types.ApiKeyLogInParams, error) {
 	log.Infof("Activating NuvlaEdge...%v", ne.NuvlaEdgeId)
-	res, err := ne.Operation(ne.NuvlaEdgeId.String(), "activate", nil)
+	res, err := ne.Operation(ctx, ne.NuvlaEdgeId.String(), "activate", nil)
 	if err != nil {
 		log.Errorf("Error activating NuvlaEdge: %s", err)
 		return types.ApiKeyLogInParams{}, err
@@ -151,9 +152,9 @@ func (ne *NuvlaEdgeClient) Activate() (types.ApiKeyLogInParams, error) {
 }
 
 // Commission operations
-func (ne *NuvlaEdgeClient) Commission(data map[string]interface{}) error {
+func (ne *NuvlaEdgeClient) Commission(ctx context.Context, data map[string]interface{}) error {
 	log.Debugf("Commissioning NuvlaEdge with payload %v", data)
-	res, err := ne.Operation(ne.NuvlaEdgeId.String(), "commission", data)
+	res, err := ne.Operation(ctx, ne.NuvlaEdgeId.String(), "commission", data)
 	if err != nil {
 		log.Errorf("Error commissioning NuvlaEdge: %s", err)
 		return err
@@ -169,7 +170,7 @@ func (ne *NuvlaEdgeClient) Commission(data map[string]interface{}) error {
 	}
 
 	log.Debug("Updating NuvlaEdge resource...")
-	err = ne.UpdateResource()
+	err = ne.UpdateResource(ctx)
 	if err != nil {
 		log.Errorf("Error getting NuvlaEdge resource: %s", err)
 		return err
@@ -185,10 +186,10 @@ func (ne *NuvlaEdgeClient) Commission(data map[string]interface{}) error {
 }
 
 // Telemetry operation
-func (ne *NuvlaEdgeClient) Telemetry(data interface{}, Select []string) (*http.Response, error) {
+func (ne *NuvlaEdgeClient) Telemetry(ctx context.Context, data interface{}, Select []string) (*http.Response, error) {
 	log.Debugf("Sending telemetry data to NuvlaEdge with payload %v", data)
 	if ne.nuvlaEdgeResource.NuvlaBoxStatus == "" || ne.NuvlaEdgeStatusId == nil {
-		err := ne.UpdateResourceSelect([]string{"nuvlabox-status"})
+		err := ne.UpdateResourceSelect(ctx, []string{"nuvlabox-status"})
 		if err != nil {
 			log.Errorf("Error sending Telemetry, cannot find NuvlaBoxStatus ID: %s", err)
 			return nil, err
@@ -196,7 +197,7 @@ func (ne *NuvlaEdgeClient) Telemetry(data interface{}, Select []string) (*http.R
 		ne.NuvlaEdgeStatusId = types.NewNuvlaIDFromId(ne.nuvlaEdgeResource.NuvlaBoxStatus)
 	}
 
-	res, err := ne.Put(ne.NuvlaEdgeStatusId.String(), data, Select)
+	res, err := ne.Put(ctx, ne.NuvlaEdgeStatusId.String(), data, Select)
 	if err != nil {
 		log.Errorf("Error sending telemetry data to Nuvla: %s", err)
 		return nil, err
@@ -205,10 +206,10 @@ func (ne *NuvlaEdgeClient) Telemetry(data interface{}, Select []string) (*http.R
 }
 
 // Heartbeat operation
-func (ne *NuvlaEdgeClient) Heartbeat() (*http.Response, error) {
+func (ne *NuvlaEdgeClient) Heartbeat(ctx context.Context) (*http.Response, error) {
 	log.Debug("Sending heartbeat to NuvlaEdge...")
 
-	res, err := ne.Operation(ne.NuvlaEdgeId.String(), "heartbeat", nil)
+	res, err := ne.Operation(ctx, ne.NuvlaEdgeId.String(), "heartbeat", nil)
 	if err != nil {
 		log.Errorf("Error sending heartbeat to NuvlaEdge: %s", err)
 		return nil, err
@@ -238,8 +239,8 @@ func (ne *NuvlaEdgeClient) GetResourceMap() (map[string]interface{}, error) {
 	return mapRes, nil
 }
 
-func (ne *NuvlaEdgeClient) UpdateResourceSelect(selects []string) error {
-	res, err := ne.Get(ne.NuvlaEdgeId.Id, selects)
+func (ne *NuvlaEdgeClient) UpdateResourceSelect(ctx context.Context, selects []string) error {
+	res, err := ne.Get(ctx, ne.NuvlaEdgeId.Id, selects)
 	if err != nil {
 		log.Infof("Error updating NuvlaEdge resource %s", ne.NuvlaEdgeId)
 		return nil
@@ -264,8 +265,8 @@ func (ne *NuvlaEdgeClient) UpdateResourceSelect(selects []string) error {
 	return nil
 }
 
-func (ne *NuvlaEdgeClient) UpdateResource() error {
-	return ne.UpdateResourceSelect(nil)
+func (ne *NuvlaEdgeClient) UpdateResource(ctx context.Context) error {
+	return ne.UpdateResourceSelect(ctx, nil)
 }
 
 func (ne *NuvlaEdgeClient) GetNuvlaEdgeResource() resources.NuvlaEdgeResource {
