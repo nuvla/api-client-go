@@ -19,7 +19,8 @@ type NuvlaEdgeSessionFreeze struct {
 
 	// Client data
 	Credentials *types.ApiKeyLogInParams `json:"credentials"`
-	Irs         string                   `json:"irs"`
+	IrsV2       string                   `json:"irs2"`
+	IrsV1       string                   `json:"irs"`
 
 	// NuvlaEdge Client
 	NuvlaEdgeId       string `json:"nuvlaedge-uuid"`
@@ -285,7 +286,7 @@ func (ne *NuvlaEdgeClient) Freeze(file string) error {
 
 	f := NuvlaEdgeSessionFreeze{
 		SessionOptions: ne.GetSessionOpts(),
-		Irs:            ne.Irs,
+		IrsV2:          ne.Irs,
 		// If this point is reached, NuvlaEdgeID should never be nil or empty so if null pointer exception
 		// is raised here, there is another issue
 		NuvlaEdgeId: ne.NuvlaEdgeId.String(),
