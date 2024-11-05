@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.1](https://github.com/nuvla/api-client-go/compare/v0.9.0...v0.9.1) (2024-11-05)
+
+
+### Bug Fixes
+
+* Fixes IRS on V2 ([abf2601](https://github.com/nuvla/api-client-go/commit/abf2601049f4a89f1f93e6a574e0b22f43e699ab))
+
 ## [0.9.0](https://github.com/nuvla/api-client-go/compare/v0.8.0...v0.9.0) (2024-10-04)
 
 
